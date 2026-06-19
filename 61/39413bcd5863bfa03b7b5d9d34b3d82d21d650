@@ -1,0 +1,29 @@
+reports/dataset_profile.md
+  s_41d1912f51299e::t_ba4213c2d777ea 1-158,165-175
+reports/anomaly_summary.csv
+  s_41d1912f51299e::t_0ba27e185dc925 1-6
+reports/top_30_diff.md
+  s_41d1912f51299e::t_aa8eea4ea30a94 1-36
+reports/submission_benchmark.csv
+  s_41d1912f51299e::t_f490c898b905f6 1-101
+reports/top_300_review.csv
+  s_41d1912f51299e::t_54ed49cfca3b5e 1-301
+submission.csv
+  s_41d1912f51299e::t_54ed49cfca3b5e 1-101
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "6139413bcd5863bfa03b7b5d9d34b3d82d21d650",
+  "prompts": {},
+  "sessions": {
+    "s_41d1912f51299e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_11ebaa9a0ffeHAK6eqoMsr68Ni",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    }
+  }
+}
