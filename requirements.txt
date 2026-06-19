@@ -1,0 +1,2 @@
+# The ranker intentionally uses only the Python standard library.
+# This keeps reproduction fast and offline-safe.
