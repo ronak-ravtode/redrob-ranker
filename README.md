@@ -31,6 +31,7 @@ python scripts/audit_anomalies.py --candidates ./candidates.jsonl
 python scripts/inspect_top.py --candidates ./candidates.jsonl --limit 50
 python -m unittest discover -s tests -p "test_*.py" -v
 python scripts/benchmark.py --candidates ./candidates.jsonl --out ./submission.csv
+python scripts/manual_audit.py --submission ./submission.csv --dataset ./candidates.jsonl
 ```
 
 ## Important

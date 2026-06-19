@@ -11,6 +11,7 @@
 - Added hard exclusion for high-confidence anomalies before scoring.
 - Added optional review and reasoning-audit exports.
 - Local verification: `python -m unittest discover -s tests -p "test_*.py" -v` passed; `python -m compileall src scripts tests rank.py validate_submission.py` passed.
+- Added `scripts/manual_audit.py` for one-command human sign-off checks.
 
 ## Runtime and memory impact
 - Full-data benchmark: pending dataset path.
