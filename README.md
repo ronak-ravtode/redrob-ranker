@@ -34,6 +34,21 @@ python scripts/benchmark.py --candidates ./candidates.jsonl --out ./submission.c
 python scripts/manual_audit.py --submission ./submission.csv --dataset ./candidates.jsonl
 ```
 
+## Local sandbox
+
+```bash
+python sandbox_app.py --host 127.0.0.1 --port 7860
+```
+
+The sandbox accepts a pasted sample of at most 100 JSONL candidate records and returns a CSV using the same ranking code.
+
+## Docker
+
+```bash
+docker build -t redrob-ranker .
+docker run --rm -p 7860:7860 redrob-ranker
+```
+
 ## Important
 
 This is a starting point, not a guaranteed winning ranker. Agents must inspect the top 200, identify false

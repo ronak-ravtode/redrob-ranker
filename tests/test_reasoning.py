@@ -87,6 +87,20 @@ class ReasoningTests(unittest.TestCase):
         self.assertTrue(details["concerns"])
         self.assertIn("notice_period_days", ",".join(details["concerns"][0]["sources"]))
 
+    def test_reason_handles_malformed_years(self):
+        candidate = {
+            "candidate_id": "CAND_0000125",
+            "profile": {
+                "years_of_experience": None,
+                "current_title": "ML Engineer",
+                "current_company": "Acme",
+            },
+            "redrob_signals": {"notice_period_days": None, "last_active_date": "not-a-date"},
+        }
+        reason = build_reason(candidate, _features(), 0.5)
+        self.assertIn("0.0 years", reason)
+        self.assertIn("ML Engineer", reason)
+
 
 if __name__ == "__main__":
     unittest.main()

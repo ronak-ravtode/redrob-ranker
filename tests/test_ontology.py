@@ -1,7 +1,7 @@
 import unittest
 
 from src.config import NEGATIVE_PATTERNS, PATTERN_GROUPS
-from src.features import is_coarse_candidate
+from src.features import extract_features, is_coarse_candidate
 from src.text_utils import contains_any, normalize
 
 
@@ -70,6 +70,30 @@ class OntologyTests(unittest.TestCase):
             "skills": [{"name": "ranking"}, {"name": "retrieval"}],
         }
         self.assertFalse(is_coarse_candidate(candidate))
+
+    def test_short_metric_terms_do_not_match_unrelated_words(self):
+        candidate = {
+            "candidate_id": "CAND_9999997",
+            "profile": {
+                "years_of_experience": 6.0,
+                "current_title": "Project Manager",
+                "current_company": "Acme",
+                "country": "India",
+                "location": "Pune",
+            },
+            "career_history": [
+                {
+                    "title": "Project Manager",
+                    "company": "Acme",
+                    "description": "Owned roadmap planning and customer support escalations.",
+                    "duration_months": 36,
+                }
+            ],
+            "skills": [],
+            "redrob_signals": {},
+        }
+        features = extract_features(candidate, [])
+        self.assertEqual(features["career"]["evaluation"], 0)
 
 
 if __name__ == "__main__":

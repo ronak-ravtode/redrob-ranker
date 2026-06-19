@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from rank import rank_candidates, write_submission
+from rank import iter_candidates, rank_candidates, write_submission
 from validate_submission import validate_submission
 
 
@@ -93,6 +93,19 @@ class RankPipelineTests(unittest.TestCase):
             self.assertEqual(len(ranked), 100)
             write_submission(ranked, out, top_k=100)
             self.assertEqual(validate_submission(out), [])
+
+    def test_malformed_jsonl_raises_clear_error(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "bad.jsonl"
+            path.write_text("{not-json}\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "Invalid JSON at line 1"):
+                list(iter_candidates(path))
+
+    def test_missing_input_file_raises_file_not_found(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "missing.jsonl"
+            with self.assertRaises(FileNotFoundError):
+                list(iter_candidates(path))
 
 
 if __name__ == "__main__":

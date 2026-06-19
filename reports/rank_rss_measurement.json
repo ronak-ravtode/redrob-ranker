@@ -1,0 +1,21 @@
+{
+  "command": [
+    "python",
+    "rank.py",
+    "--candidates",
+    ".\\candidates.jsonl",
+    "--out",
+    ".\\reports\\rss_submission.csv",
+    "--review-out",
+    ".\\reports\\rss_top_300_review.csv",
+    "--reasoning-audit-out",
+    ".\\reports\\rss_reasoning_audit.csv"
+  ],
+  "return_code": 0,
+  "wall_seconds": 11.358166699996218,
+  "peak_rss_bytes": 27914240,
+  "peak_rss_mb": 26.62109375,
+  "cpu_count": 12,
+  "python_version": "3.14.3",
+  "platform": "Windows-11-10.0.26200-SP0"
+}

@@ -22,10 +22,17 @@ def _safe_int(value: object, default: int = 0) -> int:
         return default
 
 
+def _safe_float(value: object, default: float = 0.0) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
 def build_reason_details(candidate: dict[str, Any], features: dict[str, Any], score: float) -> dict[str, Any]:
     profile = candidate.get("profile", {})
     signals = candidate.get("redrob_signals", {})
-    years = float(profile.get("years_of_experience", 0.0))
+    years = _safe_float(profile.get("years_of_experience", 0.0))
     title = profile.get("current_title", "Unknown title")
     company = profile.get("current_company", "Unknown company")
 

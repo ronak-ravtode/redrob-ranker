@@ -15,8 +15,14 @@ from .config import (
 )
 from .text_utils import clipped, contains_any, normalize
 
+def _term_pattern(term: str) -> str:
+    # Avoid false positives such as MAP matching roadmap while still matching
+    # phrases with punctuation like a/b testing and recall@.
+    return rf"(?<![a-z0-9]){re.escape(term)}(?![a-z0-9])"
+
+
 GROUP_REGEX = {
-    name: re.compile("|".join(re.escape(term) for term in sorted(terms, key=len, reverse=True)))
+    name: re.compile("|".join(_term_pattern(term) for term in sorted(terms, key=len, reverse=True)))
     for name, terms in PATTERN_GROUPS.items()
 }
 COARSE_CAREER_REGEX = re.compile(
@@ -285,7 +291,7 @@ def extract_features(candidate: dict[str, Any], anomaly_flags: list[str]) -> dic
             "cv_only": False,
             "research_only": False,
             "consulting_only": _consulting_only(candidate),
-            "experience_fit": _experience_fit(float(profile.get("years_of_experience", 0.0))),
+            "experience_fit": _experience_fit(_safe_float(profile.get("years_of_experience", 0.0))),
             "location_fit": _location_fit(candidate),
             "behavior_fit": _behavior_fit(candidate),
             "notice_fit": _notice_fit(candidate),

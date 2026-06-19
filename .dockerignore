@@ -1,0 +1,7 @@
+candidates.jsonl
+__pycache__/
+*.pyc
+.git/
+reports/*.csv
+reports/*.md
+submission*.csv

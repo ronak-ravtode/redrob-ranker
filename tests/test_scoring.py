@@ -1,5 +1,6 @@
 import unittest
 
+from src.features import extract_features
 from src.scoring import score_features
 
 
@@ -73,6 +74,39 @@ class ScoringTests(unittest.TestCase):
         score_plain, _ = score_features(plain)
         score_keyword, _ = score_features(keyword)
         self.assertGreater(score_plain, score_keyword)
+
+    def test_missing_and_malformed_signals_do_not_crash_features(self):
+        candidate = {
+            "candidate_id": "CAND_9999998",
+            "profile": {
+                "years_of_experience": None,
+                "current_title": "Software Engineer",
+                "current_company": "Acme",
+                "country": "India",
+                "location": "Pune",
+            },
+            "career_history": [
+                {
+                    "title": "Software Engineer",
+                    "company": "Acme",
+                    "description": "Built internal tools.",
+                    "duration_months": None,
+                }
+            ],
+            "skills": [],
+            "redrob_signals": {
+                "notice_period_days": None,
+                "recruiter_response_rate": None,
+                "avg_response_time_hours": None,
+                "interview_completion_rate": None,
+                "saved_by_recruiters_30d": None,
+                "github_activity_score": -1,
+            },
+        }
+        features = extract_features(candidate, [])
+        self.assertEqual(features["years"], 0.0)
+        self.assertGreaterEqual(features["behavior_fit"], 0.0)
+        self.assertGreaterEqual(features["notice_fit"], 0.0)
 
 
 if __name__ == "__main__":
