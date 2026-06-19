@@ -14,9 +14,10 @@
 - Added `scripts/manual_audit.py` for one-command human sign-off checks.
 
 ## Runtime and memory impact
-- Full-data benchmark: pending dataset path.
+- Full-data end-to-end verification order passed sequentially: profile -> anomaly -> benchmark -> rank -> validate -> manual audit.
+- Full-data benchmark wall time: 58.91s.
+- Ranking step peak traced memory: 6.04 MB.
+- Full verification step timings: profile 39.14s, anomaly 4.91s, rank 11.70s, validate 0.08s, manual audit 5.43s.
 - Code-path impact: still streaming; no dataframe load introduced.
-- Expected memory increase: modest, from extra per-candidate feature bookkeeping only.
 - Local unittest suite: 13 tests passed in ~0.03s.
-- Synthetic benchmark smoke: 100 valid + 1 anomalous candidate finished in ~0.05s with ~0.97 MB peak traced memory.
 - Dataset-audit script smoke: profile and anomaly reports generated successfully on a 2-candidate sample.
