@@ -1,0 +1,19 @@
+docs/decision_log.md
+  s_41d1912f51299e::t_76eca9274a80b5 17-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "a616845a0254ceb3cc19b84eb804e53bb44e13f0",
+  "prompts": {},
+  "sessions": {
+    "s_41d1912f51299e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_11ebaa9a0ffeHAK6eqoMsr68Ni",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    }
+  }
+}
