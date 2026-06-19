@@ -1,0 +1,19 @@
+.gitignore
+  s_41d1912f51299e::t_fe6ad72a6eb525 1-3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "435887cf062372c24bb2e113b68c1145f054d5ef",
+  "prompts": {},
+  "sessions": {
+    "s_41d1912f51299e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_11ebaa9a0ffeHAK6eqoMsr68Ni",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    }
+  }
+}
