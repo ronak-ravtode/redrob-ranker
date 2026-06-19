@@ -1,0 +1,23 @@
+scripts/manual_audit.py
+  s_41d1912f51299e::t_20a0fac98f589a 1-196
+README.md
+  s_41d1912f51299e::t_f0b73d578dc850 34
+docs/decision_log.md
+  s_41d1912f51299e::t_fc5c2a94b86a17 14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "10bbe3cc33228b901ddd2b48c82ee0062ab058ad",
+  "prompts": {},
+  "sessions": {
+    "s_41d1912f51299e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_11ebaa9a0ffeHAK6eqoMsr68Ni",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    }
+  }
+}
