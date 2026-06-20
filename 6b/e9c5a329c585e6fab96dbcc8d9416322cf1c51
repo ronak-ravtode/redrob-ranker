@@ -1,0 +1,41 @@
+reports/final_repository_audit.md
+  s_5a005953b53f48::t_e70edd588f0a29 15-18
+scripts/final_review_reports.py
+  s_5a005953b53f48::t_75a27161fd9f20 42-58
+  s_5a005953b53f48::t_ead3875a68d0b7 648-649,651
+  s_5a005953b53f48::t_a81ca27cb7b246 660-662,675-676,685-686,688-690
+  s_5a005953b53f48::t_646a88a2170312 699-701,722,724-725,727
+submission_metadata.yaml
+  s_5a005953b53f48::t_e0c197ecbe1ba9 25,29
+reports/final_compute_benchmark.md
+  s_5a005953b53f48::t_e70edd588f0a29 26
+  s_5a005953b53f48::t_ac71eec9d4e874 14-15
+reports/final_sandbox_audit.md
+  s_5a005953b53f48::t_e70edd588f0a29 9,14-15
+  s_5a005953b53f48::t_763140a20afdc4 6-7,16-17,19-21
+reports/rank_rss_measurement.json
+  s_5a005953b53f48::t_6ca8ef2791477b 15-17
+reports/final_metadata_audit.md
+  s_5a005953b53f48::t_1203733c00634e 15-16,18
+  s_5a005953b53f48::t_e70edd588f0a29 3
+FINAL_RELEASE_REVIEW.md
+  s_5a005953b53f48::t_ac71eec9d4e874 7-9
+  s_5a005953b53f48::t_e70edd588f0a29 18
+  s_5a005953b53f48::t_763140a20afdc4 3,20,22-23,25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "6be9c5a329c585e6fab96dbcc8d9416322cf1c51",
+  "prompts": {},
+  "sessions": {
+    "s_5a005953b53f48": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_11c24777affeVBTwBf4ygWt4Ja",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    }
+  }
+}
