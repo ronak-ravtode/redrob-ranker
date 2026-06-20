@@ -49,10 +49,18 @@ class SandboxHandler(BaseHTTPRequestHandler):
             sample_path = Path(tmpdir) / "sample.jsonl"
             sample_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
             try:
-                ranked = rank_candidates(sample_path, keep=100)
+                ranked = rank_candidates(sample_path, keep=100, apply_coarse_filter=False)
             except Exception as exc:  # pragma: no cover - UI error path
                 self._send_html(f"<p>Ranking failed: {html.escape(str(exc))}</p>" + FORM, status=400)
                 return
+
+        if not ranked:
+            self._send_html(
+                "<p>No rankable candidates found. Check that the input is JSONL; high-confidence anomalies are excluded.</p>"
+                + FORM,
+                status=400,
+            )
+            return
 
         self.send_response(200)
         self.send_header("Content-Type", "text/csv; charset=utf-8")

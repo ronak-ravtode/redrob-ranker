@@ -27,16 +27,16 @@ def iter_candidates(path: Path):
                 raise ValueError(f"Invalid JSON at line {line_number}: {exc}") from exc
 
 
-def rank_candidates(path: Path, keep: int = 300) -> list[dict[str, Any]]:
+def rank_candidates(path: Path, keep: int = 300, apply_coarse_filter: bool = True) -> list[dict[str, Any]]:
     heap: list[tuple[float, int, str, dict[str, Any]]] = []
     for candidate in iter_candidates(path):
-        if not is_coarse_candidate(candidate):
+        if apply_coarse_filter and not is_coarse_candidate(candidate):
             continue
         anomaly_flags = detect_anomalies(candidate)
         if anomaly_flags:
             continue
         features = extract_features(candidate, anomaly_flags)
-        if not features.get("coarse_relevant", True):
+        if apply_coarse_filter and not features.get("coarse_relevant", True):
             continue
         score, score_parts = score_features(features)
         cid = candidate["candidate_id"]

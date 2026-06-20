@@ -107,6 +107,31 @@ class RankPipelineTests(unittest.TestCase):
             with self.assertRaises(FileNotFoundError):
                 list(iter_candidates(path))
 
+    def test_sample_mode_can_rank_coarse_unrelated_records(self):
+        unrelated = _candidate("CAND_0000200")
+        unrelated["profile"]["current_title"] = "Operations Manager"
+        unrelated["career_history"] = [
+            {
+                "title": "Operations Manager",
+                "company": "Acme",
+                "description": "Managed vendor workflows and internal reporting.",
+                "start_date": "2020-01-01",
+                "end_date": "2026-01-01",
+                "duration_months": 72,
+                "is_current": False,
+            }
+        ]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "sample.jsonl"
+            path.write_text(json.dumps(unrelated) + "\n", encoding="utf-8")
+
+            self.assertEqual(rank_candidates(path, keep=10), [])
+            ranked = rank_candidates(path, keep=10, apply_coarse_filter=False)
+
+        self.assertEqual([row["candidate"]["candidate_id"] for row in ranked], ["CAND_0000200"])
+        self.assertFalse(ranked[0]["features"]["coarse_relevant"])
+
 
 if __name__ == "__main__":
     unittest.main()
