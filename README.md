@@ -1,3 +1,13 @@
+---
+title: Redrob Ranker
+emoji: 🔎
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # Redrob Intelligent Candidate Ranker — Agent Starter
 
 This repository is a deterministic, CPU-only baseline for the India Runs / Redrob Data & AI Challenge.
