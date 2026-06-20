@@ -1,0 +1,19 @@
+Dockerfile
+  s_41d1912f51299e::t_f88c7d56707a8f 4-5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "35d6dbbd1db0c2f8767829ff3aba02551c44e405",
+  "prompts": {},
+  "sessions": {
+    "s_41d1912f51299e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_11ebaa9a0ffeHAK6eqoMsr68Ni",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    }
+  }
+}
