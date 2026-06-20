@@ -1,9 +1,9 @@
 # Final Metadata Audit
 
-- Placeholder count: 1
+- Placeholder count: 0
 
 ## Remaining placeholders
-- +91-XXXXXXXXXX
+- None
 
 ## Safely derivable values
 - Python version: 3.14.3
@@ -12,7 +12,5 @@
 - CPU-only/offline/precomputation declarations can be updated from verified project behavior.
 
 ## Irreducible user-supplied values required
-- Confirm registered participant/team name if different from inferred value
-- Confirm primary contact legal/display name if different from inferred value
-- Contact phone number
-- Confirm final team-member list and emails if different from inferred values
+- None if team/contact/member values match the portal registration.
+- Update only if the official portal team identity differs from the values in `submission_metadata.yaml`.

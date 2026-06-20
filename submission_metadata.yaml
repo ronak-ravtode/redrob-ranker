@@ -12,7 +12,7 @@ team_name: "ronak-ravtode"  # Confirm this matches your registered team name.
 primary_contact:
   name: "ronak-ravtode"          # Confirm this matches your portal identity.
   email: "ronakravtode001@gmail.com"   # Used for all organizer communication
-  phone: "+91-XXXXXXXXXX"        # Used for top-50 / top-10 outreach
+  phone: "+91-9265218085"        # Used for top-50 / top-10 outreach
 
 team_members:
   - name: "ronak-ravtode"
@@ -73,8 +73,8 @@ methodology_summary: |
   and profile summaries are supporting signals only. High-confidence integrity
   anomalies are excluded before ranking. Behavioural, notice and location signals
   are bounded modifiers. Explanations are generated from the same evidence used
-  for scoring. Full ranking on the supplied 100K dataset runs in about 11.36s on
-  CPU with about 26.62 MB peak process working set in the measured environment.
+  for scoring. Full ranking on the supplied 100K dataset runs in about 17.68s on
+  CPU with about 26.43 MB peak process working set in the measured environment.
 
 # ============================================================================
 # Declarations

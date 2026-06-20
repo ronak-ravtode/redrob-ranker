@@ -635,7 +635,10 @@ def generate_metadata_audit(root: Path) -> list[str]:
     ]
     found = [item for item in placeholders if item in text]
     lines = ["# Final Metadata Audit", "", f"- Placeholder count: {len(found)}", "", "## Remaining placeholders"]
-    lines.extend(f"- {item}" for item in found)
+    if found:
+        lines.extend(f"- {item}" for item in found)
+    else:
+        lines.append("- None")
     lines.extend([
         "",
         "## Safely derivable values",
@@ -645,10 +648,8 @@ def generate_metadata_audit(root: Path) -> list[str]:
         "- CPU-only/offline/precomputation declarations can be updated from verified project behavior.",
         "",
         "## Irreducible user-supplied values required",
-        "- Confirm registered participant/team name if different from inferred value",
-        "- Confirm primary contact legal/display name if different from inferred value",
-        "- Contact phone number",
-        "- Confirm final team-member list and emails if different from inferred values",
+        "- None if team/contact/member values match the portal registration.",
+        "- Update only if the official portal team identity differs from the values in `submission_metadata.yaml`.",
     ])
     write_text(root / "reports/final_metadata_audit.md", "\n".join(lines))
     return found
@@ -699,6 +700,15 @@ def generate_final_release_review(root: Path, metadata_placeholders: list[str], 
     sandbox_url = metadata_value(root, "sandbox_link")
     github_url = metadata_value(root, "github_repo")
     status = "BLOCKED BY METADATA" if metadata_placeholders else "READY FOR SUBMISSION"
+    metadata_result = "FAIL, placeholders remain" if metadata_placeholders else "PASS, no placeholders remain"
+    remaining_risks = "missing official JD/spec/schema docs; company founding years are locally curated"
+    if metadata_placeholders:
+        remaining_risks += "; metadata placeholders"
+    required_info = (
+        "none unless portal team/contact/member values differ from `submission_metadata.yaml`"
+        if not metadata_placeholders
+        else "participant/team name, contact name/phone, and final team member list if different from inferred values"
+    )
     lines = [
         "# Final Release Review",
         "",
@@ -718,11 +728,11 @@ def generate_final_release_review(root: Path, metadata_placeholders: list[str], 
         "12. Reasoning variation result: no exact duplicates; common templates remain.",
         "13. Repository result: dataset not committed; repo audit generated.",
         "14. Git result: claimed commits exist; final-review changes need final commit after this report.",
-        "15. Metadata result: FAIL, placeholders remain.",
+        f"15. Metadata result: {metadata_result}.",
         f"16. Sandbox result: local sandbox/Docker added; public hosted URL configured and tested: {sandbox_url}.",
         "17. Exact changes made: safe malformed-value parsing, malformed input tests, process RSS measurement, local sandbox/Docker, final audit reports.",
-        "18. Remaining risks: missing official JD/spec/schema docs; metadata placeholders; company founding years are locally curated.",
-        "19. Exact information required from user: participant/team name, contact name/phone, and final team member list if different from inferred values.",
+        f"18. Remaining risks: {remaining_risks}.",
+        f"19. Exact information required from user: {required_info}.",
         f"20. Exact commands before uploading: `python rank.py --candidates ./candidates.jsonl --out ./{submission.name}`; `python validate_submission.py ./{submission.name}`; `python scripts/manual_audit.py --submission ./{submission.name} --dataset ./candidates.jsonl`.",
         f"21. Exact files/URLs to submit: `{submission.name}`, `{github_url}`, completed `submission_metadata.yaml`, `{sandbox_url}`.",
     ]
