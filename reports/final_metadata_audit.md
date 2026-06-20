@@ -1,11 +1,9 @@
 # Final Metadata Audit
 
-- Placeholder count: 3
+- Placeholder count: 1
 
 ## Remaining placeholders
 - +91-XXXXXXXXXX
-- YOUR_USERNAME
-- YOUR_REPO
 
 ## Safely derivable values
 - Python version: 3.14.3
@@ -14,9 +12,7 @@
 - CPU-only/offline/precomputation declarations can be updated from verified project behavior.
 
 ## Irreducible user-supplied values required
-- Registered participant/team name
-- Primary contact legal/display name
+- Confirm registered participant/team name if different from inferred value
+- Confirm primary contact legal/display name if different from inferred value
 - Contact phone number
-- Final GitHub repository URL or permission to create/push one
-- Hosted sandbox URL after deployment
-- Final team-member list and emails
+- Confirm final team-member list and emails if different from inferred values

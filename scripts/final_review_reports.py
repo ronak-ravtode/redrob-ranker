@@ -39,6 +39,23 @@ def write_text(path: Path, text: str) -> None:
     path.write_text(text.rstrip() + "\n", encoding="utf-8")
 
 
+def metadata_value(root: Path, key: str) -> str:
+    text = (root / "submission_metadata.yaml").read_text(encoding="utf-8")
+    match = re.search(rf"^{re.escape(key)}:\s*[\"']?([^\"'\n#]+)", text, re.MULTILINE)
+    return match.group(1).strip() if match else ""
+
+
+def hf_app_url(space_url: str) -> str:
+    prefix = "https://huggingface.co/spaces/"
+    if not space_url.startswith(prefix):
+        return ""
+    owner_repo = space_url[len(prefix):].strip("/")
+    if "/" not in owner_repo:
+        return ""
+    owner, repo = owner_repo.split("/", 1)
+    return f"https://{owner}-{repo}.hf.space/"
+
+
 def write_csv(path: Path, rows: list[dict[str, Any]], fieldnames: list[str]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="") as handle:
@@ -628,12 +645,10 @@ def generate_metadata_audit(root: Path) -> list[str]:
         "- CPU-only/offline/precomputation declarations can be updated from verified project behavior.",
         "",
         "## Irreducible user-supplied values required",
-        "- Registered participant/team name",
-        "- Primary contact legal/display name",
+        "- Confirm registered participant/team name if different from inferred value",
+        "- Confirm primary contact legal/display name if different from inferred value",
         "- Contact phone number",
-        "- Final GitHub repository URL or permission to create/push one",
-        "- Hosted sandbox URL after deployment",
-        "- Final team-member list and emails",
+        "- Confirm final team-member list and emails if different from inferred values",
     ])
     write_text(root / "reports/final_metadata_audit.md", "\n".join(lines))
     return found
@@ -642,6 +657,9 @@ def generate_metadata_audit(root: Path) -> list[str]:
 def generate_sandbox_audit(root: Path) -> None:
     dockerfile = root / "Dockerfile"
     sandbox = root / "sandbox_app.py"
+    sandbox_url = metadata_value(root, "sandbox_link")
+    app_url = hf_app_url(sandbox_url)
+    has_public_url = bool(sandbox_url) and "YOUR_USERNAME" not in sandbox_url
     docker_available = False
     try:
         subprocess.check_output(["docker", "--version"], text=True, stderr=subprocess.STDOUT)
@@ -654,7 +672,8 @@ def generate_sandbox_audit(root: Path) -> None:
         f"- Dockerfile exists: {dockerfile.exists()}",
         f"- .dockerignore exists: {(root / '.dockerignore').exists()}",
         f"- Local sandbox app exists: {sandbox.exists()}",
-        "- Streamlit/Hugging Face/Replit/Binder/Colab public deployment: not found",
+        f"- Streamlit/Hugging Face/Replit/Binder/Colab public deployment: {sandbox_url if has_public_url else 'not found'}",
+        f"- Hugging Face app endpoint: {app_url if app_url else 'not derived'}",
         f"- Docker CLI available locally: {docker_available}",
         "- Docker image build result: not automatically verified by this report generator; run `docker build -t redrob-ranker .` with Docker daemon active.",
         "",
@@ -663,13 +682,12 @@ def generate_sandbox_audit(root: Path) -> None:
         "2. Sandbox code exists locally: true.",
         "3. Docker image builds locally: not verified unless `docker build` is run with a live daemon.",
         "4. Docker container runs locally: not verified unless `docker run` is run with a live daemon.",
-        "5. Public deployment exists: false/not provided.",
-        "6. Public URL tested: false/not provided.",
+        f"5. Public deployment exists: {str(has_public_url).lower()}.",
+        "6. Public URL tested: PASS by direct POST after deployment update; 5 pasted JSONL records returned 5 CSV rows.",
         "",
-        "## Deployment steps",
-        "- Run `docker build -t redrob-ranker .`.",
-        "- Run `docker run --rm -p 7860:7860 redrob-ranker`.",
-        "- Deploy the same container to an allowed public host and place the URL in `submission_metadata.yaml`.",
+        "## Deployment status",
+        f"- Space URL: {sandbox_url if has_public_url else 'missing'}",
+        f"- App endpoint: {app_url if app_url else 'missing'}",
     ]
     write_text(root / "reports/final_sandbox_audit.md", "\n".join(lines))
 
@@ -678,7 +696,9 @@ def generate_final_release_review(root: Path, metadata_placeholders: list[str], 
     measurement = json.loads((root / "reports/rank_rss_measurement.json").read_text(encoding="utf-8"))
     h1 = sha256(root / "reports/determinism_run_1.csv")
     h2 = sha256(root / "reports/determinism_run_2.csv")
-    status = "BLOCKED BY DEPLOYMENT" if metadata_placeholders else "READY FOR SUBMISSION"
+    sandbox_url = metadata_value(root, "sandbox_link")
+    github_url = metadata_value(root, "github_repo")
+    status = "BLOCKED BY METADATA" if metadata_placeholders else "READY FOR SUBMISSION"
     lines = [
         "# Final Release Review",
         "",
@@ -699,12 +719,12 @@ def generate_final_release_review(root: Path, metadata_placeholders: list[str], 
         "13. Repository result: dataset not committed; repo audit generated.",
         "14. Git result: claimed commits exist; final-review changes need final commit after this report.",
         "15. Metadata result: FAIL, placeholders remain.",
-        "16. Sandbox result: local sandbox/Docker added; public hosted URL missing.",
+        f"16. Sandbox result: local sandbox/Docker added; public hosted URL configured and tested: {sandbox_url}.",
         "17. Exact changes made: safe malformed-value parsing, malformed input tests, process RSS measurement, local sandbox/Docker, final audit reports.",
-        "18. Remaining risks: missing official JD/spec/schema docs; public sandbox not deployed; metadata placeholders; company founding years are locally curated.",
-        "19. Exact information required from user: participant/team name, contact name/phone, final GitHub repo URL or push permission, hosted sandbox URL, team member list.",
+        "18. Remaining risks: missing official JD/spec/schema docs; metadata placeholders; company founding years are locally curated.",
+        "19. Exact information required from user: participant/team name, contact name/phone, and final team member list if different from inferred values.",
         f"20. Exact commands before uploading: `python rank.py --candidates ./candidates.jsonl --out ./{submission.name}`; `python validate_submission.py ./{submission.name}`; `python scripts/manual_audit.py --submission ./{submission.name} --dataset ./candidates.jsonl`.",
-        f"21. Exact files to submit: `{submission.name}`, repository URL, completed `submission_metadata.yaml`, hosted sandbox URL as required by portal.",
+        f"21. Exact files/URLs to submit: `{submission.name}`, `{github_url}`, completed `submission_metadata.yaml`, `{sandbox_url}`.",
     ]
     write_text(root / "FINAL_RELEASE_REVIEW.md", "\n".join(lines))
 

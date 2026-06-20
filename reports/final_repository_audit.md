@@ -12,6 +12,10 @@
 
 ## Recent commits
 ```
+b9ab860 fix: rank sandbox samples without coarse filter
+35d6dbb fix: simplify Hugging Face Docker copy set
+697889d fix: add Hugging Face Space docker metadata
+1dad024 review: final adversarial release audit
 a616845 docs: record full-project verification timings
 10bbe3c feat: one-command manual audit checks
 6139413 release: validated submission and audit artifacts

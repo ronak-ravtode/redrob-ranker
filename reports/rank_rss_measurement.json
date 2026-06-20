@@ -12,9 +12,9 @@
     ".\\reports\\rss_reasoning_audit.csv"
   ],
   "return_code": 0,
-  "wall_seconds": 11.358166699996218,
-  "peak_rss_bytes": 27914240,
-  "peak_rss_mb": 26.62109375,
+  "wall_seconds": 17.681927300000098,
+  "peak_rss_bytes": 27717632,
+  "peak_rss_mb": 26.43359375,
   "cpu_count": 12,
   "python_version": "3.14.3",
   "platform": "Windows-11-10.0.26200-SP0"
