@@ -7,17 +7,20 @@
 # ============================================================================
 # Team identity
 # ============================================================================
-team_name: "ronak-ravtode"  # Confirm this matches your registered team name.
+team_name: "Code With Errors"  # Must match the registered team name.
 
 primary_contact:
-  name: "ronak-ravtode"          # Confirm this matches your portal identity.
-  email: "ronakravtode001@gmail.com"   # Used for all organizer communication
-  phone: "+91-9265218085"        # Used for top-50 / top-10 outreach
+  name: "Nek Patel"                    # Registered team lead / primary contact
+  email: "nekpatel606@gmail.com"       # Used for all organizer communication
+  phone: "+91-9316236364"              # Used for top-50 / top-10 outreach
 
 team_members:
-  - name: "ronak-ravtode"
+  - name: "Nek Patel"
+    email: "nekpatel606@gmail.com"
+    role: "Team Lead"
+  - name: "Ronak Ravtode"
     email: "ronakravtode001@gmail.com"
-    role: "Lead Engineer"
+    role: "Engineer"
 
 # ============================================================================
 # Code and reproducibility
@@ -31,8 +34,8 @@ sandbox_link: "https://huggingface.co/spaces/ronak-ravtode/redrob-ranker"
 # candidate sample. See Section 10.5 of submission_spec.md for acceptable
 # platforms (HuggingFace Spaces, Streamlit Cloud, Replit, Colab, Docker, Binder).
 
-reproduce_command: "python rank.py --candidates ./candidates.jsonl --out ./redrob_submission.csv"
-# The single command that produces submission.csv from candidates.jsonl.
+reproduce_command: "python rank.py --candidates ./candidates.jsonl --out ./Code_With_Errors.csv"
+# The single command that produces the official submission CSV from candidates.jsonl.
 # Should run end-to-end within 5 minutes on CPU with 16GB RAM and no network.
 
 # ============================================================================
@@ -42,7 +45,7 @@ compute:
   platform: "Local Windows 11 workstation"      # Or: "AWS EC2 c5.4xlarge", "Local Linux box", etc.
   cpu_cores: 12                                 # Number of CPU cores used
   ram_gb: 16                                    # Available RAM in GB
-  python_version: "3.14.3"                      # python --version
+  python_version: "3.11-slim Docker runtime; local verification used 3.14.3"  # python --version
   os: "Windows-11-10.0.26200-SP0"               # Or "Ubuntu 22.04 LTS", etc.
   uses_gpu_for_inference: false                 # Must be false — see compute constraints
   has_network_during_ranking: false             # Must be false — no API calls during ranking
@@ -73,8 +76,8 @@ methodology_summary: |
   and profile summaries are supporting signals only. High-confidence integrity
   anomalies are excluded before ranking. Behavioural, notice and location signals
   are bounded modifiers. Explanations are generated from the same evidence used
-  for scoring. Full ranking on the supplied 100K dataset runs in about 17.68s on
-  CPU with about 26.43 MB peak process working set in the measured environment.
+  for scoring. Full ranking on the supplied 100K dataset runs in about 15.78s on
+  CPU with about 26.33 MB peak process working set in the measured environment.
 
 # ============================================================================
 # Declarations

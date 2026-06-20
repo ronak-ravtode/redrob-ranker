@@ -1,7 +1,7 @@
 # Final Compute Benchmark
 
 ## Exact command
-`python rank.py --candidates .\candidates.jsonl --out .\reports\rss_submission.csv --review-out .\reports\rss_top_300_review.csv --reasoning-audit-out .\reports\rss_reasoning_audit.csv`
+`python rank.py --candidates .\candidates.jsonl --out .\Code_With_Errors.csv`
 
 ## Environment
 - CPU model: not available from standard Python on this Windows host
@@ -11,10 +11,10 @@
 - Python: 3.14.3
 
 ## Measurements
-- Ranking-only wall time: 17.68s
-- Peak real RSS/working set: 26.43 MB
+- Ranking-only wall time: 15.78s
+- Peak real RSS/working set: 26.33 MB
 - Input file size: 487259903 bytes
-- Output file size (redrob_submission.csv): 26797 bytes
+- Output file size (Code_With_Errors.csv): 53187 bytes
 - Intermediate disk use: review CSVs under 200 KB each; full reports directory generated locally
 - CPU utilization: not measured reliably without psutil; command is single-process CPU-only Python
 
@@ -23,6 +23,6 @@
 - Memory below 16 GB: PASS
 
 ## Why prior timing values differed
-- 58.91s came from `scripts/benchmark.py`, which wraps ranking with Python `tracemalloc` overhead and writes output.
-- 11.70s/12.21s is the actual ranking/submission generation path measured separately.
+- `scripts/benchmark.py` wraps ranking with Python `tracemalloc` overhead and is slower than the official command.
+- The value above is the measured official reproduction path for the final CSV.
 - Optional audits such as dataset profiling, anomaly scanning, validation and manual audit are not part of the official ranking limit.

@@ -5,16 +5,12 @@
     "--candidates",
     ".\\candidates.jsonl",
     "--out",
-    ".\\reports\\rss_submission.csv",
-    "--review-out",
-    ".\\reports\\rss_top_300_review.csv",
-    "--reasoning-audit-out",
-    ".\\reports\\rss_reasoning_audit.csv"
+    ".\\Code_With_Errors.csv"
   ],
   "return_code": 0,
-  "wall_seconds": 17.681927300000098,
-  "peak_rss_bytes": 27717632,
-  "peak_rss_mb": 26.43359375,
+  "wall_seconds": 15.775141199992504,
+  "peak_rss_bytes": 27607040,
+  "peak_rss_mb": 26.328125,
   "cpu_count": 12,
   "python_version": "3.14.3",
   "platform": "Windows-11-10.0.26200-SP0"

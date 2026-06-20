@@ -12,6 +12,7 @@
 
 ## Recent commits
 ```
+3e6df58 release: complete contact metadata
 6be9c5a release: record deployment URLs and metadata audit
 b9ab860 fix: rank sandbox samples without coarse filter
 35d6dbb fix: simplify Hugging Face Docker copy set
