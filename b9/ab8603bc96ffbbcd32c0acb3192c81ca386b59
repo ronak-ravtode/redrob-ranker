@@ -1,0 +1,24 @@
+rank.py
+  s_5a005953b53f48::t_408943bd189251 30,33,39
+tests/test_rank.py
+  s_5a005953b53f48::t_408943bd189251 110-134
+sandbox_app.py
+  s_5a005953b53f48::t_408943bd189251 52
+  s_5a005953b53f48::t_9e118f094ff0cb 57-64
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "b9ab8603bc96ffbbcd32c0acb3192c81ca386b59",
+  "prompts": {},
+  "sessions": {
+    "s_5a005953b53f48": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_11c24777affeVBTwBf4ygWt4Ja",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    }
+  }
+}
