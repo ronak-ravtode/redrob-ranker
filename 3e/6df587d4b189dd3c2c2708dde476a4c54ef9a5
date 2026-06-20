@@ -1,0 +1,35 @@
+FINAL_RELEASE_REVIEW.md
+  s_5a005953b53f48::t_1fd8c252ccb73f 19,22-23
+  s_5a005953b53f48::t_97ca502a571e22 3
+reports/final_metadata_audit.md
+  s_5a005953b53f48::t_97ca502a571e22 3
+  s_5a005953b53f48::t_1fd8c252ccb73f 6,15-16
+scripts/final_review_reports.py
+  s_5a005953b53f48::t_957911ca76a1ef 638-641,651-652,703-711,731,734-735
+submission_metadata.yaml
+  h_c5a3d01edfee72 15
+  s_5a005953b53f48::t_e49b7d2bde96e2 76-77
+reports/final_repository_audit.md
+  s_5a005953b53f48::t_97ca502a571e22 15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "3e6df587d4b189dd3c2c2708dde476a4c54ef9a5",
+  "prompts": {},
+  "humans": {
+    "h_c5a3d01edfee72": {
+      "author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_5a005953b53f48": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_11c24777affeVBTwBf4ygWt4Ja",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    }
+  }
+}
