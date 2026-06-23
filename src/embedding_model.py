@@ -24,7 +24,14 @@ def _resolve_model_dir() -> Path | None:
     for p in candidates:
         if p.exists():
             return p
-    return None
+    try:
+        from sentence_transformers import SentenceTransformer
+        target = Path("models") / "all-MiniLM-L6-v2"
+        target.mkdir(parents=True, exist_ok=True)
+        SentenceTransformer("all-MiniLM-L6-v2").save(str(target))
+        return target
+    except Exception:
+        return None
 
 
 def _is_deterministic() -> bool:
