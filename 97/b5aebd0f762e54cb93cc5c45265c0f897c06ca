@@ -1,0 +1,19 @@
+reports/human_review_methodology.md
+  s_f2026df8f88b08::t_51657302a9f1b6 1-374
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.10",
+  "base_commit_sha": "97b5aebd0f762e54cb93cc5c45265c0f897c06ca",
+  "prompts": {},
+  "sessions": {
+    "s_f2026df8f88b08": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_10d59cc2dffeXqc7hsGFt17gA7",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    }
+  }
+}
