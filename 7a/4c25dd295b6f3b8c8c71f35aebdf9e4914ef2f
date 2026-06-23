@@ -1,0 +1,23 @@
+src/scoring.py
+  s_25cba23caf17dd::t_f0107514894a65 3,6-7,13-49
+rank.py
+  s_25cba23caf17dd::t_d2996eeb4a9035 13,112,148,215-217,219-221
+src/evaluation.py
+  s_25cba23caf17dd::t_09c5ec19306329 1-83
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.10",
+  "base_commit_sha": "7a4c25dd295b6f3b8c8c71f35aebdf9e4914ef2f",
+  "prompts": {},
+  "sessions": {
+    "s_25cba23caf17dd": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_10a84cc1bffel9v3cHVHwdh5wU",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    }
+  }
+}
