@@ -1,0 +1,19 @@
+PROJECT_OVERVIEW.md
+  s_f2026df8f88b08::t_e37e129690b7c3 1-586
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.10",
+  "base_commit_sha": "fcefdd087bbd2a00cd23fa67c81e83b0cad30b76",
+  "prompts": {},
+  "sessions": {
+    "s_f2026df8f88b08": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_10d59cc2dffeXqc7hsGFt17gA7",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    }
+  }
+}
