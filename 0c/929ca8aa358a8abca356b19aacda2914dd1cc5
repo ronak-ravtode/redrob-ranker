@@ -1,0 +1,124 @@
+docs/final_judge_presentation.md
+  s_b16d904a6c585c::t_f08fe0ad0c42a9 1-272
+Dockerfile
+  s_f2026df8f88b08::t_2fffd2d8896dfb 4,6-7,11
+reports/top50_review_data.csv
+  s_f2026df8f88b08::t_4532fd2a14b7b2 1-51
+scripts/generate_top50.py
+  s_f2026df8f88b08::t_587f95d155dda3 1-96
+scripts/reasoning_audit.py
+  s_f2026df8f88b08::t_f3afd1eaedda11 1-121
+reports/recruiter_trust_report.md
+  s_25ea9e27d68287::t_384b998b353f00 1-135
+scripts/determinism_test.py
+  s_f2026df8f88b08::t_e1c3e0d099b0c7 1-29,31-75
+  s_f2026df8f88b08::t_e9ef8c77710d4d 30
+docs/mock_judge_interview.md
+  s_60c6381d4c1641::t_3ea41e479f33a6 1-227
+reports/top50_review_data.json
+  s_f2026df8f88b08::t_4532fd2a14b7b2 1-1902
+reports/judge_gap_analysis.md
+  s_2eb7baaae3e4ed::t_ff53df673e6339 1-113
+tests/test_adversarial.py
+  s_f2026df8f88b08::t_1b64d2b53af145 144
+  s_f2026df8f88b08::t_99227830740809 326
+  s_f2026df8f88b08::t_64ed5257968826 21
+  s_f2026df8f88b08::t_0f18c53cf31c35 1-20,22-143,145-147,149-183,185-325,327-340
+  s_f2026df8f88b08::t_6c4c6873d5bedc 148
+  s_f2026df8f88b08::t_9cb109aa14ee14 184
+reports/reproducibility_review.md
+  s_f2026df8f88b08::t_98aad55abb7fda 1-64
+reports/post_embedding_benchmark.md
+  s_f2026df8f88b08::t_28d584e2108b6c 1-56
+docs/model_packaging.md
+  s_f2026df8f88b08::t_0de49cbfeaf6f2 1-94
+src/semantic.py
+  s_f2026df8f88b08::t_b39b91b31da2f3 187,192-195,200-202,205-206,208-209,211
+  s_f2026df8f88b08::t_5315dea6fd5f8d 9-11,157-185,188,203,207,210,213,227-239,246-248,256-266,270
+scripts/setup_embeddings.py
+  s_f2026df8f88b08::t_0477de53058e6d 1-86
+reports/top50_human_review.md
+  s_648f0e0082473a::t_24c55722c99ccd 1-115
+FINAL_EMBEDDING_UPGRADE_REVIEW.md
+  s_f2026df8f88b08::t_8d05096660ea06 1-130
+docs/embedding_upgrade_plan.md
+  s_f2026df8f88b08::t_95af46a7b9c2f5 1-68
+FINAL_JUDGE_REVIEW.md
+  s_f2026df8f88b08::t_e2457542fdc53b 1-158
+reports/reasoning_grounding_audit.md
+  s_f2026df8f88b08::t_a58c96fe6cc5b6 1-125
+reports/failure_case_review.md
+  s_fdf5aab9c9f871::t_7de69d81e219af 1-374
+reports/determinism_stress_test.md
+  s_f2026df8f88b08::t_7a6eec285bf475 1-27
+reports/semantic_ablation.md
+  s_f2026df8f88b08::t_4fac3611800b61 1-74
+src/embedding_model.py
+  s_f2026df8f88b08::t_8043c228ec1510 1-92
+requirements.txt
+  s_f2026df8f88b08::t_f36f21134cfbcd 1-3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.10",
+  "base_commit_sha": "0c929ca8aa358a8abca356b19aacda2914dd1cc5",
+  "prompts": {},
+  "sessions": {
+    "s_25ea9e27d68287": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_10b1cfe62ffeJsHpuoKI45r4Js",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    },
+    "s_2eb7baaae3e4ed": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_10b38279bffedwnTmjUlQPoxJh",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    },
+    "s_60c6381d4c1641": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_10b1ca35affeS9123BSkHnlmOh",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    },
+    "s_648f0e0082473a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_10b3807e5ffePlt9UpuZ3oz67W",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    },
+    "s_b16d904a6c585c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_10b1cca55ffesDwJa5h4TBzfZI",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    },
+    "s_f2026df8f88b08": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_10d59cc2dffeXqc7hsGFt17gA7",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    },
+    "s_fdf5aab9c9f871": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_10b37f208ffeqVUVajtatIGhnJ",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    }
+  }
+}
