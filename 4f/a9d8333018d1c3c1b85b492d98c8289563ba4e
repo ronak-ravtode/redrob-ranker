@@ -1,0 +1,19 @@
+reports/business_impact.md
+  s_f2026df8f88b08::t_754f6076cef789 1-304
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.10",
+  "base_commit_sha": "4fa9d8333018d1c3c1b85b492d98c8289563ba4e",
+  "prompts": {},
+  "sessions": {
+    "s_f2026df8f88b08": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_10d59cc2dffeXqc7hsGFt17gA7",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    }
+  }
+}
