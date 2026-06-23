@@ -5,3 +5,4 @@ __pycache__/
 reports/*.csv
 reports/*.md
 submission*.csv
+Code_With_Errors.csv

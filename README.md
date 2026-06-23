@@ -94,6 +94,7 @@ The challenge dataset must be present locally as `candidates.jsonl`. It is inten
 ```bash
 python rank.py --candidates ./candidates.jsonl --out ./Code_With_Errors.csv
 python validate_submission.py ./Code_With_Errors.csv
+python scripts/honeypot_check.py --submission ./Code_With_Errors.csv --dataset ./candidates.jsonl
 python scripts/manual_audit.py --submission ./Code_With_Errors.csv --dataset ./candidates.jsonl
 ```
 

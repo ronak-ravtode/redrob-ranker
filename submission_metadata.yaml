@@ -35,8 +35,7 @@ sandbox_link: "https://huggingface.co/spaces/ronak-ravtode/redrob-ranker"
 # platforms (HuggingFace Spaces, Streamlit Cloud, Replit, Colab, Docker, Binder).
 
 reproduce_command: "python rank.py --candidates ./candidates.jsonl --out ./Code_With_Errors.csv"
-# The single command that produces the official submission CSV from candidates.jsonl.
-# Should run end-to-end within 5 minutes on CPU with 16GB RAM and no network.
+# Filename must match the registered participant ID. Should run within 5 min on CPU, 16GB RAM, no network.
 
 # ============================================================================
 # Compute environment
