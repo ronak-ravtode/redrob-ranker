@@ -1,0 +1,21 @@
+Dockerfile
+  s_f2026df8f88b08::t_98746757d95dfa 8-10
+src/embedding_model.py
+  s_f2026df8f88b08::t_6548459f01b706 27-34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.10",
+  "base_commit_sha": "dabb37c746f501ca64fcb8759720eb26efb634e9",
+  "prompts": {},
+  "sessions": {
+    "s_f2026df8f88b08": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_10d59cc2dffeXqc7hsGFt17gA7",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    }
+  }
+}
