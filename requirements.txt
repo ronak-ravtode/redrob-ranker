@@ -1,5 +1,3 @@
-# The default ranker intentionally uses only the Python standard library.
-# This keeps reproduction fast and offline-safe.
-# Optional: if sentence-transformers is already installed and local weights are
-# present at REDROB_SEMANTIC_MODEL_PATH or models/all-MiniLM-L6-v2, src/semantic.py
-# can use that CPU-only local model without downloads.
+numpy>=1.24.0
+sentence-transformers>=2.2.0
+torch>=2.0.0

@@ -72,7 +72,7 @@ def _career_text(candidate: dict[str, Any]) -> tuple[str, str, str]:
     )
     profile = candidate.get("profile", {})
     profile_text = " ".join(
-        [profile.get("headline", ""), profile.get("summary", ""), profile.get("current_title", "")]
+        [str(profile.get("headline") or ""), str(profile.get("summary") or ""), str(profile.get("current_title") or "")]
     )
     return normalize(all_career), normalize(current_career), normalize(profile_text)
 
@@ -249,11 +249,11 @@ def is_coarse_candidate(candidate: dict[str, Any]) -> bool:
     title = normalize(profile.get("current_title"))
     if contains_any(title, RELEVANT_TITLE_TERMS):
         return True
-    for job in candidate.get("career_history", []):
-        text = normalize(f"{job.get('title', '')} {job.get('description', '')}")
-        if COARSE_CAREER_REGEX.search(text):
-            return True
-    return False
+    all_text = " ".join(
+        normalize(f"{job.get('title', '')} {job.get('description', '')}")
+        for job in candidate.get("career_history", [])
+    )
+    return bool(COARSE_CAREER_REGEX.search(all_text))
 
 def extract_features(candidate: dict[str, Any], anomaly_flags: list[str]) -> dict[str, Any]:
     profile = candidate.get("profile", {})

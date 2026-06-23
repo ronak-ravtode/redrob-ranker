@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import hashlib
 import math
-import os
 import re
 from functools import lru_cache
-from pathlib import Path
 from typing import Any
 
+import numpy as np
+
+from .embedding_model import encode_texts, get_embedding_model
 from .jd_understanding import JDProfile, get_default_jd_profile
 from .text_utils import clipped, normalize
 
@@ -153,32 +154,63 @@ def _jd_embedding(text: str) -> dict[str, float]:
     return _fallback_embedding(text, 1.0)
 
 
+def _candidate_text_representation(candidate: dict[str, Any]) -> str:
+    parts: list[str] = []
+    profile = candidate.get("profile", {})
+    headline = str(profile.get("headline", "")).strip()
+    summary = str(profile.get("summary", "")).strip()
+    title = str(profile.get("current_title", "")).strip()
+    if headline:
+        parts.append(headline)
+    if summary:
+        parts.append(summary)
+    if title and title.lower() not in " ".join(parts).lower():
+        parts.append(title)
+    skills = [str(skill.get("name", "")) for skill in candidate.get("skills", []) if skill.get("name")]
+    if skills:
+        parts.append("Skills: " + ", ".join(skills))
+    career_phrases: list[str] = []
+    for job in candidate.get("career_history", []):
+        job_title = str(job.get("title", "")).strip()
+        company = str(job.get("company", "")).strip()
+        desc = str(job.get("description", "")).strip()
+        if job_title or company:
+            career_phrases.append(f"{job_title} at {company}".strip(" at"))
+        if desc:
+            career_phrases.append(desc)
+    if career_phrases:
+        parts.append("Experience: " + " | ".join(career_phrases))
+    return " ".join(parts)
+
+
 @lru_cache(maxsize=1)
-def _local_transformer_model() -> object | None:
-    model_path = os.environ.get("REDROB_SEMANTIC_MODEL_PATH") or str(Path("models") / "all-MiniLM-L6-v2")
-    path = Path(model_path)
-    if not path.exists():
-        return None
-    try:
-        from sentence_transformers import SentenceTransformer  # type: ignore
-    except Exception:
-        return None
-    try:
-        return SentenceTransformer(str(path), device="cpu")
-    except Exception:
-        return None
-
-
-def _transformer_score(candidate_text: str, jd_text: str) -> float | None:
-    model = _local_transformer_model()
+def _jd_transformer_embedding(jd_text: str) -> np.ndarray | None:
+    model = get_embedding_model()
     if model is None:
         return None
     try:
-        embeddings = model.encode([jd_text, candidate_text], normalize_embeddings=True, show_progress_bar=False)
-        score = float(sum(float(a) * float(b) for a, b in zip(embeddings[0], embeddings[1])))
+        embeddings = encode_texts([jd_text], normalize=True)
+        if embeddings is None or len(embeddings) < 1:
+            return None
+        return embeddings[0]
     except Exception:
         return None
-    return clipped((score + 1.0) / 2.0)
+
+
+def _transformer_score(candidate_text: str, jd_text: str) -> tuple[float | None, np.ndarray | None, np.ndarray | None]:
+    jd_emb = _jd_transformer_embedding(jd_text)
+    if jd_emb is None:
+        return None, None, None
+    try:
+        cand_embeddings = encode_texts([candidate_text], normalize=True)
+        if cand_embeddings is None or len(cand_embeddings) < 1:
+            return None, None, None
+        cand_vec = cand_embeddings[0]
+        raw_cosine = float(np.dot(jd_emb, cand_vec))
+        score = clipped((raw_cosine + 1.0) / 2.0)
+        return score, jd_emb, cand_vec
+    except Exception:
+        return None, None, None
 
 
 def _top_concepts(candidate_vec: dict[str, float], jd_vec: dict[str, float], limit: int = 3) -> list[str]:
@@ -192,14 +224,28 @@ def _top_concepts(candidate_vec: dict[str, float], jd_vec: dict[str, float], lim
     return [label for _score, label in overlaps[:limit]]
 
 
+def _embedding_alignment_terms(jd_text: str, candidate_text: str) -> list[str]:
+    jd_lower = normalize(jd_text)
+    cand_lower = normalize(candidate_text)
+    alignment_terms: list[str] = []
+    for concept, label in CONCEPT_LABELS.items():
+        synonyms = CONCEPT_SYNONYMS.get(concept, ())
+        jd_hit = any(syn in jd_lower for syn in synonyms)
+        cand_hit = any(syn in cand_lower for syn in synonyms)
+        if jd_hit and cand_hit:
+            alignment_terms.append(label)
+    return alignment_terms
+
+
 def semantic_features(candidate: dict[str, Any], jd_profile: JDProfile | None = None) -> dict[str, Any]:
     jd = jd_profile or get_default_jd_profile()
     candidate_vec = _candidate_embedding(candidate)
     jd_vec = _jd_embedding(jd.text)
     fallback_score = cosine_similarity(candidate_vec, jd_vec)
 
-    candidate_text = " ".join(text for text, _weight in _candidate_sections(candidate))
-    transformer_score = _transformer_score(candidate_text, jd.text)
+    candidate_text = _candidate_text_representation(candidate)
+    transformer_score, jd_emb, cand_emb = _transformer_score(candidate_text, jd.text)
+
     if transformer_score is None:
         score = fallback_score
         model_name = "deterministic-domain-embedding"
@@ -207,8 +253,19 @@ def semantic_features(candidate: dict[str, Any], jd_profile: JDProfile | None = 
         score = clipped(0.70 * transformer_score + 0.30 * fallback_score)
         model_name = "local-sentence-transformer"
 
+    top_concepts = _top_concepts(candidate_vec, jd_vec)
+    alignment_terms = _embedding_alignment_terms(jd.text, candidate_text)
+    if alignment_terms and not top_concepts:
+        top_concepts = alignment_terms[:3]
+    elif alignment_terms:
+        seen = set(top_concepts)
+        for term in alignment_terms:
+            if term not in seen and len(top_concepts) < 5:
+                top_concepts.append(term)
+                seen.add(term)
+
     return {
         "semantic_fit_score": clipped(score),
         "semantic_model": model_name,
-        "semantic_top_concepts": _top_concepts(candidate_vec, jd_vec),
+        "semantic_top_concepts": top_concepts,
     }
