@@ -307,6 +307,7 @@ def extract_features(candidate: dict[str, Any], anomaly_flags: list[str]) -> dic
             "semantic_model": "not_scored",
             "semantic_top_concepts": [],
             "coarse_relevant": False,
+            "_raw_signals": dict(candidate.get("redrob_signals", {})),
         }
 
     relevant_career_roles = 0
@@ -374,4 +375,5 @@ def extract_features(candidate: dict[str, Any], anomaly_flags: list[str]) -> dic
         "semantic_model": "not_scored",
         "semantic_top_concepts": [],
         "coarse_relevant": True,
+        "_raw_signals": dict(candidate.get("redrob_signals", {})),
     }

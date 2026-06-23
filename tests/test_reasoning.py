@@ -62,7 +62,7 @@ class ReasoningTests(unittest.TestCase):
 
         details = build_reason_details(candidate, features, 0.91)
         reason = details["reason"]
-        self.assertIn("6.4 years", reason)
+        self.assertIn("6.4yr", reason)
         self.assertIn("Senior ML Engineer", reason)
         self.assertIn("Acme", reason)
         self.assertTrue(any(piece["sources"] for piece in details["strengths"]))
@@ -83,7 +83,7 @@ class ReasoningTests(unittest.TestCase):
         features["career"]["retrieval"] = 3
         features["career"]["vector_infra"] = 2
         details = build_reason_details(candidate, features, 0.62)
-        self.assertIn("Main concern", details["reason"])
+        self.assertIn("Concern:", details["reason"])
         self.assertTrue(details["concerns"])
         self.assertIn("notice_period_days", ",".join(details["concerns"][0]["sources"]))
 
@@ -98,7 +98,7 @@ class ReasoningTests(unittest.TestCase):
             "redrob_signals": {"notice_period_days": None, "last_active_date": "not-a-date"},
         }
         reason = build_reason(candidate, _features(), 0.5)
-        self.assertIn("0.0 years", reason)
+        self.assertIn("0.0yr", reason)
         self.assertIn("ML Engineer", reason)
 
 

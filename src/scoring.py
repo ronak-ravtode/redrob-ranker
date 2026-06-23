@@ -1,10 +1,53 @@
 from __future__ import annotations
 
+from datetime import date
 from typing import Any
+
+from .config import REFERENCE_DATE
 
 
 def _sat(value: float, cap: float) -> float:
     return min(value, cap) / cap if cap else 0.0
+
+
+def _safe_int(value: object, default: int = 0) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _safe_float(value: object, default: float = 0.0) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _availability_gate(features: dict[str, Any]) -> float:
+    """Soft availability penalty for candidates who are clearly not in the market.
+
+    JD says: 'a perfect-on-paper candidate who hasn't logged in for 6 months
+    with 5% response rate is not actually available.' We apply a bounded
+    additional penalty when both recency and engagement are poor.
+    """
+    signals = features.get("_raw_signals", {})
+    try:
+        last_active = date.fromisoformat(signals.get("last_active_date", "2020-01-01"))
+        inactive_days = max(0, (REFERENCE_DATE - last_active).days)
+    except (ValueError, TypeError):
+        inactive_days = 999
+
+    response_rate = _safe_float(signals.get("recruiter_response_rate", 0.5))
+    open_to_work = bool(signals.get("open_to_work_flag"))
+
+    if inactive_days > 180 and response_rate < 0.10 and not open_to_work:
+        return 0.20
+    if inactive_days > 120 and response_rate < 0.15:
+        return 0.10
+    if inactive_days > 180 and not open_to_work:
+        return 0.06
+    return 0.0
 
 
 def score_features(features: dict[str, Any]) -> tuple[float, dict[str, float]]:
@@ -42,15 +85,16 @@ def score_features(features: dict[str, Any]) -> tuple[float, dict[str, float]]:
         0.042 * features["experience_fit"]
         + 0.028 * title
         + 0.030 * role_depth
-        + 0.022 * features["location_fit"]
+        + 0.045 * features["location_fit"]
         + 0.016 * features["notice_fit"]
         + 0.020 * features["title_trajectory"]
         + 0.018 * features["job_stability"]
         + 0.020 * features["product_company_history"]
     )
 
-    # Behavioral signals are a modifier, not a replacement for skill fit.
-    behavior = 0.035 * features["behavior_fit"]
+    # Behavioral signals: increased weight + availability gate for inactive candidates.
+    behavior = 0.085 * features["behavior_fit"]
+    avail_penalty = _availability_gate(features)
 
     penalty = 0.0
     if features["keyword_stuffer"]:
@@ -66,6 +110,7 @@ def score_features(features: dict[str, Any]) -> tuple[float, dict[str, float]]:
     if features["career_core"] == 0:
         penalty += 0.20
     penalty += float(features.get("anomaly_penalty", 0.0))
+    penalty += avail_penalty
 
     raw = evidence_score + supporting + fit + behavior - penalty
     # Raw scores are intentionally not clipped at 1.0; clipping flattened many
@@ -78,6 +123,7 @@ def score_features(features: dict[str, Any]) -> tuple[float, dict[str, float]]:
         "supporting": supporting,
         "fit": fit,
         "behavior": behavior,
+        "availability_penalty": avail_penalty,
         "penalty": penalty,
         "evidence_only": evidence_only_score,
         "semantic": semantic_score,

@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from src.anomaly import anomaly_action_summary, detect_anomaly_confidence
+from src.evaluation import evaluate_ranking
 from src.features import extract_features, is_coarse_candidate
 from src.jd_understanding import get_default_jd_profile
 from src.reasoning import build_reason, build_reason_details
@@ -108,6 +109,7 @@ def write_review(rows: list[dict[str, Any]], out_path: Path, limit: int = 300) -
                 "score_supporting",
                 "score_fit",
                 "score_behavior",
+                "score_availability_penalty",
                 "score_penalty",
                 "career_core",
                 "relevant_career_roles",
@@ -143,6 +145,7 @@ def write_review(rows: list[dict[str, Any]], out_path: Path, limit: int = 300) -
                     "score_supporting": f"{parts['supporting']:.8f}",
                     "score_fit": f"{parts['fit']:.8f}",
                     "score_behavior": f"{parts['behavior']:.8f}",
+                    "score_availability_penalty": f"{parts.get('availability_penalty', 0.0):.8f}",
                     "score_penalty": f"{parts['penalty']:.8f}",
                     "career_core": features.get("career_core", 0),
                     "relevant_career_roles": features.get("relevant_career_roles", 0),
@@ -209,7 +212,13 @@ def main() -> None:
     if args.reasoning_audit_out:
         write_reasoning_audit(ranked, args.reasoning_audit_out, limit=args.keep)
     elapsed = time.perf_counter() - start
+
+    # Self-evaluation: compute IR metrics on own ranking output.
+    metrics = evaluate_ranking(ranked[:100])
     print(f"Wrote {args.out} in {elapsed:.2f}s")
+    print(f"Self-evaluation: NDCG@10={metrics['NDCG@10']:.4f}  NDCG@50={metrics['NDCG@50']:.4f}  "
+          f"MAP={metrics['MAP']:.4f}  P@10={metrics['P@10']:.4f}  "
+          f"relevant={metrics['total_relevant']}/100  strong={metrics['total_strong']}/100")
 
 
 if __name__ == "__main__":
