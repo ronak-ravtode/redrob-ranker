@@ -24,15 +24,16 @@ The ranker must identify candidates with strong hands-on evidence for production
 
 ## Architecture
 
-The pipeline is implemented with the Python standard library.
+The default pipeline is implemented with the Python standard library and now uses a hybrid AI ranking design.
 
 ```text
 candidates.jsonl
-  -> stream JSONL records
-  -> coarse relevance filter
-  -> high-confidence anomaly exclusion
+  -> JD understanding layer
+  -> stream JSONL records and coarse relevance filter
+  -> anomaly confidence scoring
   -> career/profile/skill feature extraction
-  -> deterministic additive scoring
+  -> semantic retrieval score
+  -> hybrid scoring: 0.75 evidence + 0.25 semantic
   -> stable rank ordering
   -> CSV reasoning generation
 ```
@@ -42,16 +43,24 @@ Important modules:
 ```text
 rank.py              main ranking CLI and CSV writers
 src/config.py        Senior AI Engineer ontology and negative patterns
+src/jd_understanding.py structured JDProfile requirements
 src/features.py      career, skill, logistics and behavior feature extraction
+src/semantic.py      deterministic semantic retrieval; optional local MiniLM hook
 src/scoring.py       deterministic additive score
-src/anomaly.py       high-confidence impossible-profile exclusion
+src/anomaly.py       anomaly confidence and high-confidence exclusion
 src/reasoning.py     grounded explanation generation
 sandbox_app.py       small-sample hosted demo for reviewers
 ```
 
 ## Scoring Methodology
 
-The score is a raw additive ranking score, not a probability. Scores are intentionally not clipped at 1.0 because clipping flattened strong candidates into ties.
+The final score is a hybrid ranking score, not a probability:
+
+```text
+0.75 * evidence_only_score + 0.25 * semantic_fit_score
+```
+
+The evidence-only score is intentionally not clipped at 1.0 because clipping flattened strong candidates into ties. The semantic score is bounded to `[0, 1]`.
 
 The strongest positive signals are:
 
@@ -64,19 +73,19 @@ production ownership, rollout, monitoring, latency and scale evidence
 relevant Senior/Lead/Staff ML or AI engineering trajectory
 ```
 
-Supporting signals include skills, profile summaries, experience fit, location fit, notice period, platform behavior and recruiter engagement. Skill lists are never allowed to dominate career-history evidence.
+Supporting signals include semantic alignment, skills, profile summaries, experience fit, location fit, notice period, platform behavior and recruiter engagement. Skill lists and semantic similarity are never allowed to dominate career-history evidence.
 
 Penalties are applied for keyword stuffing, consulting-only careers, CV/speech-only profiles, research-only profiles without production evidence, weak career-core evidence, and other negative archetypes.
 
 ## Anomaly Handling
 
-`src/anomaly.py` hard-excludes high-confidence integrity anomalies before ranking. Examples include impossible job durations, future employment dates, company-before-founding-year cases, experience sum mismatches, contradictory current-job state, and multiple expert skills with zero duration.
+`src/anomaly.py` hard-excludes high-confidence integrity anomalies before ranking. Examples include impossible job durations, future employment dates, company-before-founding-year cases, experience sum mismatches, contradictory current-job state, and multiple expert skills with zero duration. Medium-confidence anomalies receive a bounded ranking penalty and low-confidence anomalies are audit warnings only.
 
 The top 100 contains zero candidates flagged by these hard-exclusion rules.
 
 ## Reasoning
 
-Each CSV row includes a concise explanation grounded in the same evidence used for scoring. Reasoning now references candidate-specific facts from career history, such as named ranking or retrieval systems, vector databases, evaluation metrics, scale, migration work, index/versioning ownership, and measurable production impact where present.
+Each CSV row includes an explanation grounded in the same evidence used for scoring. Reasoning now references candidate-specific facts from career history, such as named ranking or retrieval systems, vector databases, evaluation metrics, scale, migration work, index/versioning ownership, measurable production impact, and semantic alignment concepts where present.
 
 ## Reproduce Final Submission
 
@@ -107,13 +116,14 @@ The tests cover ontology matching, short-token boundary safety, anomaly exclusio
 Measured on the documented local Windows CPU environment:
 
 ```text
-Ranking wall time: 17.68s
-Peak process RSS/working set: 26.43 MB
-Runtime limit: under 5 minutes
-Memory limit: under 16 GB
+Hybrid ranking wall time: 16.66s
+Measured process wall time: 17.00s
+Peak process RSS/working set: 29.27 MB
+Runtime target: under 60 seconds
+Memory target: under 500 MB
 ```
 
-See `reports/final_compute_benchmark.md` and `reports/rank_rss_measurement.json` for details.
+See `reports/final_benchmark.md` and `reports/rank_rss_measurement.json` for details.
 
 ## Hosted Sandbox
 
@@ -140,7 +150,7 @@ docker run --rm -p 7860:7860 redrob-ranker
 
 ## Offline Design
 
-Ranking uses only local files and the Python standard library. No network access, hosted LLM, embedding API, vector service, database, or GPU inference is used during ranking.
+Ranking uses only local files and the Python standard library by default. No network access, hosted LLM, embedding API, vector service, database, or GPU inference is used during ranking. If `REDROB_SEMANTIC_MODEL_PATH` or `models/all-MiniLM-L6-v2` points to an existing local sentence-transformers model and the package is already installed, the semantic layer can use that local CPU model without downloads; otherwise it uses deterministic domain embeddings.
 
 ## Limitations
 

@@ -109,6 +109,20 @@ def _role_depth_text(features: dict[str, Any]) -> str:
     return "has limited directly relevant role depth"
 
 
+def _semantic_alignment_text(features: dict[str, Any]) -> str:
+    score = _safe_float(features.get("semantic_fit_score", 0.0))
+    concepts = [_clean_text(item) for item in features.get("semantic_top_concepts", []) if item]
+    if score < 0.18 or not concepts:
+        return ""
+    if len(concepts) == 1:
+        concept_text = concepts[0]
+    elif len(concepts) == 2:
+        concept_text = f"{concepts[0]} and {concepts[1]}"
+    else:
+        concept_text = f"{concepts[0]}, {concepts[1]}, and {concepts[2]}"
+    return f"semantic retrieval aligns the profile with {concept_text}"
+
+
 def build_reason_details(candidate: dict[str, Any], features: dict[str, Any], score: float) -> dict[str, Any]:
     profile = candidate.get("profile", {})
     signals = candidate.get("redrob_signals", {})
@@ -144,6 +158,9 @@ def build_reason_details(candidate: dict[str, Any], features: dict[str, Any], sc
         strengths.append(_piece(_role_depth_text(features), ["career_history.title", "career_history.duration_months"]))
     if _has(features, "fine_tuning") and len(strengths) < 3:
         strengths.append(_piece("LLM or embedding-model tuning appears in career or skill evidence", ["career_history.description", "skills.name"]))
+    semantic_alignment = _semantic_alignment_text(features)
+    if semantic_alignment and len(strengths) < 3:
+        strengths.append(_piece(semantic_alignment, ["semantic_fit_score", "semantic_top_concepts"]))
 
     if not strengths:
         strengths.append(_piece("profile is adjacent to ML engineering, but career descriptions provide limited concrete ranking evidence", ["profile.current_title", "career_history.description"]))
@@ -203,6 +220,8 @@ def build_reason_details(candidate: dict[str, Any], features: dict[str, Any], sc
         reason += f" {fit_lines[style]}"
     else:
         reason += " Fit is credible but less complete than higher-ranked candidates."
+    if semantic_alignment and "semantic" not in reason.lower():
+        reason += f" {semantic_alignment.capitalize()}."
     return {
         "reason": reason,
         "strengths": strengths,

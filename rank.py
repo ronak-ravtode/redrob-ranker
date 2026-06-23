@@ -9,11 +9,16 @@ import time
 from pathlib import Path
 from typing import Any
 
-from src.anomaly import detect_anomalies
+from src.anomaly import anomaly_action_summary, detect_anomaly_confidence
 from src.features import extract_features, is_coarse_candidate
+from src.jd_understanding import get_default_jd_profile
 from src.reasoning import build_reason, build_reason_details
 from src.scoring import score_features
+from src.semantic import semantic_features
 from src.text_utils import candidate_id_suffix
+
+
+JD_PROFILE = get_default_jd_profile()
 
 
 def iter_candidates(path: Path):
@@ -32,12 +37,18 @@ def rank_candidates(path: Path, keep: int = 300, apply_coarse_filter: bool = Tru
     for candidate in iter_candidates(path):
         if apply_coarse_filter and not is_coarse_candidate(candidate):
             continue
-        anomaly_flags = detect_anomalies(candidate)
-        if anomaly_flags:
+        anomaly_findings = detect_anomaly_confidence(candidate)
+        hard_flags, anomaly_confidence, anomaly_action, anomaly_penalty = anomaly_action_summary(anomaly_findings)
+        if hard_flags:
             continue
+        anomaly_flags = [f"{item['flag']}:{item['action']}" for item in anomaly_findings]
         features = extract_features(candidate, anomaly_flags)
+        features["anomaly_confidence"] = anomaly_confidence
+        features["anomaly_action"] = anomaly_action
+        features["anomaly_penalty"] = anomaly_penalty
         if apply_coarse_filter and not features.get("coarse_relevant", True):
             continue
+        features.update(semantic_features(candidate, JD_PROFILE))
         score, score_parts = score_features(features)
         cid = candidate["candidate_id"]
         suffix = candidate_id_suffix(cid)
@@ -91,6 +102,8 @@ def write_review(rows: list[dict[str, Any]], out_path: Path, limit: int = 300) -
                 "candidate_id",
                 "rank",
                 "score",
+                "score_evidence_only",
+                "semantic_fit_score",
                 "score_evidence",
                 "score_supporting",
                 "score_fit",
@@ -108,6 +121,10 @@ def write_review(rows: list[dict[str, Any]], out_path: Path, limit: int = 300) -
                 "skill_corroboration",
                 "negative_flags",
                 "anomaly_flags",
+                "anomaly_confidence",
+                "anomaly_action",
+                "semantic_model",
+                "semantic_top_concepts",
             ],
         )
         writer.writeheader()
@@ -120,6 +137,8 @@ def write_review(rows: list[dict[str, Any]], out_path: Path, limit: int = 300) -
                     "candidate_id": candidate["candidate_id"],
                     "rank": index,
                     "score": f"{row['score']:.8f}",
+                    "score_evidence_only": f"{parts.get('evidence_only', row['score']):.8f}",
+                    "semantic_fit_score": f"{parts.get('semantic', features.get('semantic_fit_score', 0.0)):.8f}",
                     "score_evidence": f"{parts['evidence']:.8f}",
                     "score_supporting": f"{parts['supporting']:.8f}",
                     "score_fit": f"{parts['fit']:.8f}",
@@ -137,6 +156,10 @@ def write_review(rows: list[dict[str, Any]], out_path: Path, limit: int = 300) -
                     "skill_corroboration": f"{features.get('skill_corroboration', 0.0):.4f}",
                     "negative_flags": ";".join(features.get("negative_flags", [])),
                     "anomaly_flags": ";".join(features.get("anomaly_flags", [])),
+                    "anomaly_confidence": f"{features.get('anomaly_confidence', 0.0):.2f}",
+                    "anomaly_action": features.get("anomaly_action", "none"),
+                    "semantic_model": features.get("semantic_model", "not_scored"),
+                    "semantic_top_concepts": ";".join(features.get("semantic_top_concepts", [])),
                 }
             )
 

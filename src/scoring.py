@@ -65,16 +65,21 @@ def score_features(features: dict[str, Any]) -> tuple[float, dict[str, float]]:
         penalty += 0.18
     if features["career_core"] == 0:
         penalty += 0.20
+    penalty += float(features.get("anomaly_penalty", 0.0))
 
     raw = evidence_score + supporting + fit + behavior - penalty
     # Raw scores are intentionally not clipped at 1.0; clipping flattened many
     # strong candidates into identical scores and destroyed ranking information.
-    score = max(0.0, raw)
+    evidence_only_score = max(0.0, raw)
+    semantic_score = max(0.0, min(1.0, float(features.get("semantic_fit_score", 0.0))))
+    score = 0.75 * evidence_only_score + 0.25 * semantic_score
     parts = {
         "evidence": evidence_score,
         "supporting": supporting,
         "fit": fit,
         "behavior": behavior,
         "penalty": penalty,
+        "evidence_only": evidence_only_score,
+        "semantic": semantic_score,
     }
     return score, parts

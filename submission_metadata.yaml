@@ -70,14 +70,17 @@ ai_usage_summary: |
 # Approach summary (optional but recommended)
 # ============================================================================
 methodology_summary: |
-  Deterministic rule-based ranker that streams JSONL profiles and prioritizes
-  career-history evidence for ranking, retrieval, recommendation, matching,
-  vector/search infrastructure, production ownership and evaluation. Skill lists
+  Deterministic hybrid AI ranker that streams JSONL profiles and combines JD
+  understanding, semantic retrieval and evidence-based scoring. Career-history
+  evidence for ranking, retrieval, recommendation, matching, vector/search
+  infrastructure, production ownership and evaluation remains dominant; semantic
+  fit contributes 25% of the final score to improve paraphrase recall. Skill lists
   and profile summaries are supporting signals only. High-confidence integrity
-  anomalies are excluded before ranking. Behavioural, notice and location signals
-  are bounded modifiers. Explanations are generated from the same evidence used
-  for scoring. Full ranking on the supplied 100K dataset runs in about 15.78s on
-  CPU with about 26.33 MB peak process working set in the measured environment.
+  anomalies are excluded, medium-confidence anomalies are penalized, and low-
+  confidence anomalies are warnings. Explanations are generated from the same
+  evidence and semantic concepts used for scoring. Full hybrid ranking runs in
+  about 17.00s on CPU with about 29.27 MB peak process working set in the measured
+  environment.
 
 # ============================================================================
 # Declarations

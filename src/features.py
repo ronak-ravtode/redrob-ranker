@@ -8,12 +8,16 @@ from typing import Any
 from .config import (
     CONSULTING_COMPANIES,
     NEGATIVE_PATTERNS,
-    PATTERN_GROUPS,
     PREFERRED_CITIES,
     REFERENCE_DATE,
-    RELEVANT_TITLE_TERMS,
 )
+from .jd_understanding import get_default_jd_profile
 from .text_utils import clipped, contains_any, normalize
+
+
+JD_PROFILE = get_default_jd_profile()
+PATTERN_GROUPS = JD_PROFILE.pattern_groups
+RELEVANT_TITLE_TERMS = JD_PROFILE.relevant_title_terms
 
 def _term_pattern(term: str) -> str:
     # Avoid false positives such as MAP matching roadmap while still matching
@@ -296,6 +300,12 @@ def extract_features(candidate: dict[str, Any], anomaly_flags: list[str]) -> dic
             "behavior_fit": _behavior_fit(candidate),
             "notice_fit": _notice_fit(candidate),
             "anomaly_flags": anomaly_flags,
+            "anomaly_confidence": 0.0,
+            "anomaly_action": "none",
+            "anomaly_penalty": 0.0,
+            "semantic_fit_score": 0.0,
+            "semantic_model": "not_scored",
+            "semantic_top_concepts": [],
             "coarse_relevant": False,
         }
 
@@ -357,5 +367,11 @@ def extract_features(candidate: dict[str, Any], anomaly_flags: list[str]) -> dic
         "behavior_fit": _behavior_fit(candidate),
         "notice_fit": _notice_fit(candidate),
         "anomaly_flags": anomaly_flags,
+        "anomaly_confidence": 0.0,
+        "anomaly_action": "none",
+        "anomaly_penalty": 0.0,
+        "semantic_fit_score": 0.0,
+        "semantic_model": "not_scored",
+        "semantic_top_concepts": [],
         "coarse_relevant": True,
     }

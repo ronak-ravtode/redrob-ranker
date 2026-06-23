@@ -5,12 +5,12 @@
     "--candidates",
     ".\\candidates.jsonl",
     "--out",
-    ".\\Code_With_Errors.csv"
+    ".\\reports\\determinism_run_1.csv"
   ],
   "return_code": 0,
-  "wall_seconds": 15.775141199992504,
-  "peak_rss_bytes": 27607040,
-  "peak_rss_mb": 26.328125,
+  "wall_seconds": 17.002898999955505,
+  "peak_rss_bytes": 30691328,
+  "peak_rss_mb": 29.26953125,
   "cpu_count": 12,
   "python_version": "3.14.3",
   "platform": "Windows-11-10.0.26200-SP0"
