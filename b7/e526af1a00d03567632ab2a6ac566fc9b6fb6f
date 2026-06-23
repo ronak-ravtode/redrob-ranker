@@ -1,0 +1,21 @@
+reports/coarse_filter_validation.md
+  s_f2026df8f88b08::t_b44b654e7c1c7c 1-109
+scripts/validate_coarse_filter.py
+  s_f2026df8f88b08::t_087ecbb7f3155b 1-505
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.10",
+  "base_commit_sha": "b7e526af1a00d03567632ab2a6ac566fc9b6fb6f",
+  "prompts": {},
+  "sessions": {
+    "s_f2026df8f88b08": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_10d59cc2dffeXqc7hsGFt17gA7",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    }
+  }
+}
