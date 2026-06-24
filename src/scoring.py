@@ -30,6 +30,7 @@ def _availability_gate(features: dict[str, Any]) -> float:
     JD says: 'a perfect-on-paper candidate who hasn't logged in for 6 months
     with 5% response rate is not actually available.' We apply a bounded
     additional penalty when both recency and engagement are poor.
+    Also flags spray-and-pray: high application volume with low response.
     """
     signals = features.get("_raw_signals", {})
     try:
@@ -40,6 +41,13 @@ def _availability_gate(features: dict[str, Any]) -> float:
 
     response_rate = _safe_float(signals.get("recruiter_response_rate", 0.5))
     open_to_work = bool(signals.get("open_to_work_flag"))
+    applications = _safe_int(signals.get("applications_submitted_30d", 0))
+
+    # Spray-and-pray: many applications + low response + inactive = noise.
+    if applications >= 15 and response_rate < 0.10 and inactive_days > 60:
+        return 0.18
+    if applications >= 10 and response_rate < 0.10 and inactive_days > 90:
+        return 0.12
 
     if inactive_days > 180 and response_rate < 0.10 and not open_to_work:
         return 0.20

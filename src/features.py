@@ -154,12 +154,21 @@ def _title_trajectory(candidate: dict[str, Any]) -> float:
     return clipped(0.5 + delta / 8.0)
 
 
-def _skill_corroboration(career: dict[str, int], skills: dict[str, int]) -> float:
+def _skill_corroboration(career: dict[str, int], skills: dict[str, int], candidate: dict[str, Any] | None = None) -> float:
     corroborated = 0
     for group in ("ranking", "retrieval", "vector_infra", "evaluation", "python"):
         if career.get(group, 0) and skills.get(group, 0):
             corroborated += 1
-    return corroborated / 5.0
+    base = corroborated / 5.0
+
+    # Boost if Redrob skill assessments confirm career-evidence skills.
+    if candidate:
+        assessments = candidate.get("redrob_signals", {}).get("skill_assessment_scores", {})
+        if isinstance(assessments, dict) and assessments:
+            high_scores = sum(1 for v in assessments.values() if _safe_int(v, 0) >= 70)
+            assessment_boost = min(0.15, high_scores * 0.03)
+            return clipped(base + assessment_boost)
+    return base
 
 
 def _experience_fit(years: float) -> float:
@@ -180,12 +189,25 @@ def _location_fit(candidate: dict[str, Any]) -> float:
     country = normalize(profile.get("country"))
     location = normalize(profile.get("location"))
     willing = bool(signals.get("willing_to_relocate"))
+    work_mode = normalize(signals.get("preferred_work_mode", ""))
 
     if country == "india":
         if any(city in location for city in PREFERRED_CITIES):
-            return 1.0
-        return 0.82 if willing else 0.58
-    return 0.30 if willing else 0.05
+            base = 1.0
+        else:
+            base = 0.82 if willing else 0.58
+    else:
+        base = 0.30 if willing else 0.05
+
+    # JD is hybrid; boost flexible/hybrid/onsite candidates, penalize remote-only.
+    if work_mode in ("hybrid", "flexible", "onsite"):
+        work_bonus = 0.05
+    elif work_mode == "remote":
+        work_bonus = -0.05
+    else:
+        work_bonus = 0.0
+
+    return clipped(base + work_bonus)
 
 
 def _behavior_fit(candidate: dict[str, Any]) -> float:
@@ -213,15 +235,23 @@ def _behavior_fit(candidate: dict[str, Any]) -> float:
     github_norm = 0.0 if github < 0 else clipped(github / 100.0)
     verified = sum(bool(signals.get(k)) for k in ("verified_email", "verified_phone", "linkedin_connected")) / 3.0
 
+    # New signals: organic demand, platform visibility, profile engagement.
+    profile_views = clipped(math.log1p(max(0, _safe_int(signals.get("profile_views_received_30d", 0)))) / math.log(20))
+    searchAppear = clipped(math.log1p(max(0, _safe_int(signals.get("search_appearance_30d", 0)))) / math.log(20))
+    completeness = clipped(_safe_float(signals.get("profile_completeness_score", 0)) / 100.0)
+
     return clipped(
-        0.26 * recency
-        + 0.18 * open_to_work
-        + 0.18 * response_rate
-        + 0.08 * response_speed
-        + 0.13 * interview
-        + 0.07 * saved
-        + 0.06 * github_norm
-        + 0.04 * verified
+        0.22 * recency
+        + 0.15 * open_to_work
+        + 0.15 * response_rate
+        + 0.07 * response_speed
+        + 0.11 * interview
+        + 0.06 * saved
+        + 0.05 * github_norm
+        + 0.03 * verified
+        + 0.08 * profile_views
+        + 0.05 * searchAppear
+        + 0.03 * completeness
     )
 
 
@@ -325,7 +355,7 @@ def extract_features(candidate: dict[str, Any], anomaly_flags: list[str]) -> dic
     )
     career_core = career["ranking"] + career["retrieval"] + career["evaluation"]
     keyword_stuffer = ai_skill_mentions >= 3 and career_core == 0
-    skill_corroboration = _skill_corroboration(career, skill_ev)
+    skill_corroboration = _skill_corroboration(career, skill_ev, candidate)
 
     negative_flags: list[str] = []
     combined_non_skill = f"{career_text} {profile_text}"
