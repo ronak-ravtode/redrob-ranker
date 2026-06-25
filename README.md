@@ -80,7 +80,9 @@ final_score = 0.75 × evidence_only + 0.25 × semantic
 
 **Supporting signals** (9%): Skills with duration, profile summaries, skill corroboration.
 
-**Fit signals** (18%): Experience years, location, notice period, salary, education tier, company size, industry.
+**Fit signals** (18%): Experience years, location, notice period, salary, education tier/field, company size, industry, current-role relevance.
+
+**Grounded evidence signals**: Quantified ranking/retrieval impact in career descriptions receives a small boost when tied to actual roles.
 
 **Behavioral signals** (8.5%): 23 Redrob platform signals (recency, response rate, interview completion, GitHub activity, etc.).
 

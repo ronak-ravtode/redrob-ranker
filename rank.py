@@ -89,7 +89,7 @@ def write_submission(rows: list[dict[str, Any]], out_path: Path, top_k: int = 10
                 "candidate_id": candidate["candidate_id"],
                 "rank": index,
                 "score": f"{row['score']:.8f}",
-                "reasoning": build_reason(candidate, row["features"], row["score"]),
+                "reasoning": build_reason(candidate, row["features"], row["score"], rank=index),
             })
 
 
@@ -121,6 +121,9 @@ def write_review(rows: list[dict[str, Any]], out_path: Path, limit: int = 300) -
                 "title_trajectory",
                 "job_stability",
                 "skill_corroboration",
+                "current_relevance_score",
+                "measured_impact_score",
+                "education_field_fit",
                 "negative_flags",
                 "anomaly_flags",
                 "anomaly_confidence",
@@ -157,6 +160,9 @@ def write_review(rows: list[dict[str, Any]], out_path: Path, limit: int = 300) -
                     "title_trajectory": f"{features.get('title_trajectory', 0.0):.4f}",
                     "job_stability": f"{features.get('job_stability', 0.0):.4f}",
                     "skill_corroboration": f"{features.get('skill_corroboration', 0.0):.4f}",
+                    "current_relevance_score": f"{features.get('current_relevance_score', 0.0):.4f}",
+                    "measured_impact_score": f"{features.get('measured_impact_score', 0.0):.4f}",
+                    "education_field_fit": f"{features.get('education_field_fit', 0.5):.4f}",
                     "negative_flags": ";".join(features.get("negative_flags", [])),
                     "anomaly_flags": ";".join(features.get("anomaly_flags", [])),
                     "anomaly_confidence": f"{features.get('anomaly_confidence', 0.0):.2f}",
@@ -178,7 +184,7 @@ def write_reasoning_audit(rows: list[dict[str, Any]], out_path: Path, limit: int
         writer.writeheader()
         for index, row in enumerate(selected, start=1):
             candidate = row["candidate"]
-            details = build_reason_details(candidate, row["features"], row["score"])
+            details = build_reason_details(candidate, row["features"], row["score"], rank=index)
             writer.writerow(
                 {
                     "candidate_id": candidate["candidate_id"],
