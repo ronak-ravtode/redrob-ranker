@@ -98,6 +98,7 @@ def score_features(features: dict[str, Any]) -> tuple[float, dict[str, float]]:
         + 0.020 * features["title_trajectory"]
         + 0.018 * features["job_stability"]
         + 0.020 * features["product_company_history"]
+        + 0.012 * features.get("salary_fit", 0.5)
     )
 
     # Behavioral signals: increased weight + availability gate for inactive candidates.

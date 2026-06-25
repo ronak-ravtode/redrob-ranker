@@ -161,14 +161,23 @@ def _skill_corroboration(career: dict[str, int], skills: dict[str, int], candida
             corroborated += 1
     base = corroborated / 5.0
 
+    if not candidate:
+        return base
+
+    signals = candidate.get("redrob_signals", {})
+
     # Boost if Redrob skill assessments confirm career-evidence skills.
-    if candidate:
-        assessments = candidate.get("redrob_signals", {}).get("skill_assessment_scores", {})
-        if isinstance(assessments, dict) and assessments:
-            high_scores = sum(1 for v in assessments.values() if _safe_int(v, 0) >= 70)
-            assessment_boost = min(0.15, high_scores * 0.03)
-            return clipped(base + assessment_boost)
-    return base
+    assessments = signals.get("skill_assessment_scores", {})
+    assessment_boost = 0.0
+    if isinstance(assessments, dict) and assessments:
+        high_scores = sum(1 for v in assessments.values() if _safe_int(v, 0) >= 70)
+        assessment_boost = min(0.10, high_scores * 0.02)
+
+    # Boost from peer endorsements: log-normalized, caps at ~15 endorsements.
+    endorsements = _safe_int(signals.get("endorsements_received", 0))
+    endorsement_boost = min(0.05, math.log1p(max(0, endorsements)) / math.log(16) * 0.05)
+
+    return clipped(base + assessment_boost + endorsement_boost)
 
 
 def _experience_fit(years: float) -> float:
@@ -240,18 +249,38 @@ def _behavior_fit(candidate: dict[str, Any]) -> float:
     searchAppear = clipped(math.log1p(max(0, _safe_int(signals.get("search_appearance_30d", 0)))) / math.log(20))
     completeness = clipped(_safe_float(signals.get("profile_completeness_score", 0)) / 100.0)
 
+    # Account age: veteran users (>12mo) show commitment; very new (<1mo) = tire-kickers.
+    signup = _date_or_default(signals.get("signup_date"), date(2020, 1, 1))
+    account_days = max(0, (REFERENCE_DATE - signup).days)
+    account_age = clipped(min(1.0, account_days / 365.0))
+
+    # Network size: log-normalized platform connections.
+    connections = _safe_int(signals.get("connection_count", 0))
+    connection_norm = clipped(math.log1p(max(0, connections)) / math.log(50))
+
+    # Offer acceptance rate: -1 = no offers, 0-1 = acceptance rate.
+    # High rate = selective candidate likely to accept; -1 = unknown.
+    offer_raw = _safe_float(signals.get("offer_acceptance_rate", -1), -1)
+    if offer_raw < 0:
+        offer_signal = 0.5  # neutral for no data
+    else:
+        offer_signal = clipped(offer_raw)
+
     return clipped(
-        0.22 * recency
-        + 0.15 * open_to_work
-        + 0.15 * response_rate
-        + 0.07 * response_speed
-        + 0.11 * interview
-        + 0.06 * saved
-        + 0.05 * github_norm
+        0.19 * recency
+        + 0.13 * open_to_work
+        + 0.13 * response_rate
+        + 0.06 * response_speed
+        + 0.10 * interview
+        + 0.05 * saved
+        + 0.04 * github_norm
         + 0.03 * verified
-        + 0.08 * profile_views
-        + 0.05 * searchAppear
+        + 0.07 * profile_views
+        + 0.04 * searchAppear
         + 0.03 * completeness
+        + 0.05 * account_age
+        + 0.04 * connection_norm
+        + 0.04 * offer_signal
     )
 
 
@@ -266,6 +295,36 @@ def _notice_fit(candidate: dict[str, Any]) -> float:
     if days <= 120:
         return 0.25
     return 0.05
+
+
+def _salary_fit(candidate: dict[str, Any]) -> float:
+    """Check if candidate salary expectations are reasonable for the role.
+
+    Series A startup in India. Reasonable range ~15-40 LPA for senior ML.
+    Below range = likely underqualified or low expectations (neutral).
+    Above range = may be out of budget (slight penalty).
+    No data = neutral (0.5).
+    """
+    signals = candidate.get("redrob_signals", {})
+    salary = signals.get("expected_salary_range_inr_lpa")
+    if not salary or not isinstance(salary, dict):
+        return 0.5
+    sal_min = _safe_float(salary.get("min"), 0)
+    sal_max = _safe_float(salary.get("max"), 0)
+    if sal_min <= 0 and sal_max <= 0:
+        return 0.5
+    mid = (sal_min + sal_max) / 2 if sal_min > 0 and sal_max > 0 else sal_min or sal_max
+    if mid <= 0:
+        return 0.5
+    if 12 <= mid <= 45:
+        return 1.0
+    if 10 <= mid < 12 or 45 < mid <= 55:
+        return 0.75
+    if 8 <= mid < 10 or 55 < mid <= 70:
+        return 0.50
+    if mid < 8:
+        return 0.35
+    return 0.25
 
 
 def _consulting_only(candidate: dict[str, Any]) -> bool:
@@ -329,6 +388,7 @@ def extract_features(candidate: dict[str, Any], anomaly_flags: list[str]) -> dic
             "location_fit": _location_fit(candidate),
             "behavior_fit": _behavior_fit(candidate),
             "notice_fit": _notice_fit(candidate),
+            "salary_fit": _salary_fit(candidate),
             "anomaly_flags": anomaly_flags,
             "anomaly_confidence": 0.0,
             "anomaly_action": "none",
@@ -397,6 +457,7 @@ def extract_features(candidate: dict[str, Any], anomaly_flags: list[str]) -> dic
         "location_fit": _location_fit(candidate),
         "behavior_fit": _behavior_fit(candidate),
         "notice_fit": _notice_fit(candidate),
+        "salary_fit": _salary_fit(candidate),
         "anomaly_flags": anomaly_flags,
         "anomaly_confidence": 0.0,
         "anomaly_action": "none",
