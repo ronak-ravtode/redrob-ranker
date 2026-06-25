@@ -10,153 +10,129 @@ pinned: false
 
 # Redrob Intelligent Candidate Ranker
 
-Final submission repository for the Redrob Intelligent Candidate Discovery Challenge. The project ranks the supplied `candidates.jsonl` pool for the Senior AI Engineer role and produces the official top-100 CSV submission.
+Redrob Intelligent Candidate Discovery Challenge submission. Ranks 100K candidates for Senior AI Engineer role, outputs top 100 with candidate-specific reasoning.
 
-Final submission file:
-
-```bash
-Code_With_Errors.csv
-```
-
-## Problem Statement
-
-The ranker must identify candidates with strong hands-on evidence for production AI engineering, search/ranking, retrieval, vector infrastructure, evaluation, and ownership. It must run deterministically on CPU, offline, without hosted inference or API calls, and it must produce explainable candidate-level reasoning.
+**Team**: Code With Errors  
+**Submission**: `Code_With_Errors.csv`
 
 ## Architecture
 
-The default pipeline is implemented with the Python standard library and now uses a hybrid AI ranking design.
-
-```text
-candidates.jsonl
-  -> JD understanding layer
-  -> stream JSONL records and coarse relevance filter
-  -> anomaly confidence scoring
-  -> career/profile/skill feature extraction
-  -> semantic retrieval score
-  -> hybrid scoring: 0.75 evidence + 0.25 semantic
-  -> stable rank ordering
-  -> CSV reasoning generation
+```
+candidates.jsonl (100K)
+        │
+        ▼
+┌──────────────────┐
+│  JD Understanding │  Senior AI Engineer ontology
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│  Coarse Filter    │  Regex skip → ~5K candidates
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│  Anomaly Detect   │  Hard-exclude frauds, penalize anomalies
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│  Feature Extract  │  Career evidence + 23 behavioral signals
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│  Semantic Score   │  MiniLM-L6-v2 or deterministic fallback
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│  Hybrid Score     │  0.75 × evidence + 0.25 × semantic
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│  Reasoning Gen    │  Evidence-grounded, candidate-specific
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│  CSV Output       │  100 rows, ranks 1-100
+└──────────────────┘
 ```
 
-Important modules:
-
-```text
-rank.py              main ranking CLI and CSV writers
-src/config.py        Senior AI Engineer ontology and negative patterns
-src/jd_understanding.py structured JDProfile requirements
-src/features.py      career, skill, logistics and behavior feature extraction
-src/semantic.py      deterministic semantic retrieval; optional local MiniLM hook
-src/scoring.py       deterministic additive score
-src/anomaly.py       anomaly confidence and high-confidence exclusion
-src/reasoning.py     grounded explanation generation
-sandbox_app.py       small-sample hosted demo for reviewers
-```
-
-## Scoring Methodology
-
-The final score is a hybrid ranking score, not a probability:
-
-```text
-0.75 * evidence_only_score + 0.25 * semantic_fit_score
-```
-
-The evidence-only score is intentionally not clipped at 1.0 because clipping flattened strong candidates into ties. The semantic score is bounded to `[0, 1]`.
-
-The strongest positive signals are:
-
-```text
-career-history evidence for ranking, recommendation or matching
-hands-on search/retrieval systems
-vector infrastructure such as dense retrieval, FAISS/HNSW or embeddings
-offline/online evaluation such as NDCG, MRR, recall@K or A/B testing
-production ownership, rollout, monitoring, latency and scale evidence
-relevant Senior/Lead/Staff ML or AI engineering trajectory
-```
-
-Supporting signals include semantic alignment, skills, profile summaries, experience fit, location fit, notice period, platform behavior and recruiter engagement. Skill lists and semantic similarity are never allowed to dominate career-history evidence.
-
-Penalties are applied for keyword stuffing, consulting-only careers, CV/speech-only profiles, research-only profiles without production evidence, weak career-core evidence, and other negative archetypes.
-
-## Anomaly Handling
-
-`src/anomaly.py` hard-excludes high-confidence integrity anomalies before ranking. Examples include impossible job durations, future employment dates, company-before-founding-year cases, experience sum mismatches, contradictory current-job state, and multiple expert skills with zero duration. Medium-confidence anomalies receive a bounded ranking penalty and low-confidence anomalies are audit warnings only.
-
-The top 100 contains zero candidates flagged by these hard-exclusion rules.
-
-## Reasoning
-
-Each CSV row includes an explanation grounded in the same evidence used for scoring. Reasoning now references candidate-specific facts from career history, such as named ranking or retrieval systems, vector databases, evaluation metrics, scale, migration work, index/versioning ownership, measurable production impact, and semantic alignment concepts where present.
-
-## Reproduce Final Submission
-
-The challenge dataset must be present locally as `candidates.jsonl`. It is intentionally not committed.
+## Quick Start
 
 ```bash
-python rank.py --candidates ./candidates.jsonl --out ./Code_With_Errors.csv
-python validate_submission.py ./Code_With_Errors.csv
-python scripts/honeypot_check.py --submission ./Code_With_Errors.csv --dataset ./candidates.jsonl
-python scripts/manual_audit.py --submission ./Code_With_Errors.csv --dataset ./candidates.jsonl
+pip install -r requirements.txt
+make rank       # Produces Code_With_Errors.csv
+make validate   # Check format
+make test       # Run 46 tests
 ```
 
-Optional review exports:
+## Scoring
 
-```bash
-python rank.py --candidates ./candidates.jsonl --out ./Code_With_Errors.csv --review-out ./reports/top_300_review.csv --reasoning-audit-out ./reports/reasoning_audit.csv
 ```
+final_score = 0.75 × evidence_only + 0.25 × semantic
+```
+
+**Evidence signals** (68%): Career-history descriptions for ranking, retrieval, evaluation, production ownership, vector infrastructure.
+
+**Supporting signals** (9%): Skills with duration, profile summaries, skill corroboration.
+
+**Fit signals** (18%): Experience years, location, notice period, salary, education tier, company size, industry.
+
+**Behavioral signals** (8.5%): 23 Redrob platform signals (recency, response rate, interview completion, GitHub activity, etc.).
+
+**Penalties**: Keyword stuffing (-0.34), consulting-only (-0.16), CV-only (-0.22), research-only (-0.18), inactive candidates (-0.20).
+
+## Modules
+
+| Module | Purpose |
+|--------|---------|
+| `rank.py` | Main CLI, CSV writers, self-evaluation |
+| `src/features.py` | Career, skill, behavior, location extraction |
+| `src/scoring.py` | Weighted score computation |
+| `src/reasoning.py` | Candidate-specific explanations |
+| `src/anomaly.py` | Fraud detection and penalty |
+| `src/semantic.py` | Transformer semantic scoring |
+| `src/config.py` | JD ontology and patterns |
+| `src/evaluation.py` | NDCG@10, MAP, P@10 metrics |
+| `validate_submission.py` | CSV format validator |
+| `sandbox_app.py` | HuggingFace demo |
 
 ## Tests
 
 ```bash
-python -m unittest discover -s tests -p "test_*.py" -v
+make test
 ```
 
-The tests cover ontology matching, short-token boundary safety, anomaly exclusion, malformed JSONL handling, missing input handling, malformed/missing numeric signals, deterministic tie-breaking, sample sandbox behavior, reasoning generation, and scoring behavior.
+46 tests covering: ontology matching, anomaly exclusion, malformed data, determinism, reasoning quality, scoring edge cases.
 
-## Runtime And Memory
+## Runtime
 
-Measured on the documented local Windows CPU environment:
+- Wall time: ~70s on CPU
+- Memory: <500 MB
+- No GPU, no network, no API calls during ranking
 
-```text
-Hybrid ranking wall time: 16.66s
-Measured process wall time: 17.00s
-Peak process RSS/working set: 29.27 MB
-Runtime target: under 60 seconds
-Memory target: under 500 MB
-```
+## Sandbox
 
-See `reports/final_benchmark.md` and `reports/rank_rss_measurement.json` for details.
+HuggingFace Space: https://huggingface.co/spaces/ronak-ravtode/redrob-ranker
 
-## Hosted Sandbox
-
-The Hugging Face Space is a small-sample demo, not the full-dataset runner.
-
-```text
-https://huggingface.co/spaces/ronak-ravtode/redrob-ranker
-```
-
-The app accepts up to 100 pasted JSONL candidate records and returns `sample_ranking.csv`. It disables the production coarse filter for samples so unrelated examples still return rows, although unrelated candidates can correctly score `0.00000000`.
-
-Run locally:
+Paste up to 100 JSONL candidate records, get ranked CSV back.
 
 ```bash
-python sandbox_app.py --host 127.0.0.1 --port 7860
+make sandbox        # Local demo on port 7860
+make docker-build   # Build container
+make docker-run     # Run container
 ```
 
-Docker sandbox:
+## Documentation
 
-```bash
-docker build -t redrob-ranker .
-docker run --rm -p 7860:7860 redrob-ranker
-```
-
-## Offline Design
-
-Ranking uses only local files and the Python standard library by default. No network access, hosted LLM, embedding API, vector service, database, or GPU inference is used during ranking. If `REDROB_SEMANTIC_MODEL_PATH` or `models/all-MiniLM-L6-v2` points to an existing local sentence-transformers model and the package is already installed, the semantic layer can use that local CPU model without downloads; otherwise it uses deterministic domain embeddings.
-
-## Limitations
-
-Official JD/spec/schema files were not present in the repository, so the ontology is based on the challenge description available during development. Company founding years are locally curated and used only for high-confidence anomaly detection. Hidden-ground-truth ranking quality cannot be known before challenge results are released.
+- [Architecture](docs/architecture.md) — Pipeline design and scoring weights
+- [Evaluation](docs/evaluation.md) — Metrics and known limitations
+- [Judge Notes](docs/judge_notes.md) — Quick start and file map
 
 ## AI Use
 
-OpenCode / gpt-5.5 was used for implementation support, code review, tests, documentation, and release auditing. The ranker itself is deterministic, CPU-only and offline; it does not call any AI model or external service during ranking.
+OpenCode / gpt-5.5 used for implementation, code review, tests, and documentation. Ranking is deterministic, CPU-only, offline.
