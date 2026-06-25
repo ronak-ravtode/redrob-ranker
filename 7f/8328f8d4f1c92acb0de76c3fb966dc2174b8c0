@@ -1,0 +1,19 @@
+scripts/pre_submit_check.py
+  s_25cba23caf17dd::t_b67f9eedaf87fb 1-77
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.13",
+  "base_commit_sha": "7f8328f8d4f1c92acb0de76c3fb966dc2174b8c0",
+  "prompts": {},
+  "sessions": {
+    "s_25cba23caf17dd": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_10a84cc1bffel9v3cHVHwdh5wU",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    }
+  }
+}
