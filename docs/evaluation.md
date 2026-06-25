@@ -31,11 +31,19 @@ A candidate is "relevant" (grade ≥ 1) if they have ANY career evidence for ran
 
 1. **Synthetic data**: Career descriptions in the dataset are boilerplate copy-pasted across candidates. Real-world performance may differ.
 
-2. **No education weighting**: Education tier is a minor tiebreaker, not a gate. The JD does not require specific degrees.
+2. **No recruiter acceptance labels**: Self-evaluation uses career evidence as a relevance proxy, not human-annotated labels. We cannot measure precision/recall against recruiter decisions.
 
-3. **Static ontology**: The JD understanding is hardcoded for "Senior AI Engineer." Adapting to a different role requires updating `config.py`.
+3. **No fairness audit**: No demographic data is available. We cannot measure adverse impact across protected groups. See [Fairness Considerations](#fairness-considerations) below.
 
-4. **Semantic model**: When sentence-transformers is unavailable, falls back to deterministic domain embeddings. This is less accurate but still functional.
+4. **Single-role optimization**: Ontology and weights are tuned for Senior AI Engineer. Adapting to other roles requires manual config changes.
+
+5. **No online learning loop**: Ranking is one-shot. There is no feedback mechanism where recruiter acceptances improve future rankings.
+
+6. **Static ontology**: The JD understanding is hardcoded. Changing the role requires updating `config.py` and `jd_understanding.py`.
+
+7. **Education tier is a minor signal**: We use institution tiering as a tiebreaker, not a gate. The JD does not require specific degrees.
+
+8. **Semantic fallback**: When sentence-transformers is unavailable, deterministic domain embeddings are used. This is less accurate but still functional.
 
 ## Fairness Considerations
 
