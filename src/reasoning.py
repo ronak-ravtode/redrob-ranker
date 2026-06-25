@@ -235,225 +235,209 @@ def _rank_band(rank: int) -> str:
 # ---------------------------------------------------------------------------
 # Pattern families  (10 families x 4 variants x 3 rank bands = 120 templates)
 #
-# Each template MUST contain:
-#   {subject}  - candidate fact: "X.Yyr Title at Company"
-#   {strength} - concrete strength from candidate fields
-#   {jd}       - JD-alignment fact
-#   {concern}  - honest concern or limitation
-#
-# Templates vary by sentence structure across variants.  No two templates in
-# the same family start with the same phrasing.
+# All templates start with {subject} (candidate info) directly.
+# No archetypes prefixes like "Search-fit leader:" or "Low-band note:".
 # ---------------------------------------------------------------------------
 
 _TEMPLATES: dict[str, dict[str, list[str]]] = {
-    # 1. product_ml — strong production ML with ownership
     "product_ml": {
         _RANK_TOP: [
             "{subject} stands out for production ML ownership: {strength}. JD connection is {jd}. Concern: {concern}.",
-            "Strong shortlist: {subject} with {strength}. Fits the role through {jd}. Concern: {concern}.",
-            "{subject}; shortlist strength is {strength}. JD link: {jd}. Concern: {concern}.",
-            "Top-band product-ML profile: {subject}. Strength: {strength}. Role match: {jd}. Concern: {concern}.",
+            "{subject} is a strong shortlist candidate with {strength}. Fits the role through {jd}. Concern: {concern}.",
+            "{subject} with shortlist strength from {strength}. JD link: {jd}. Concern: {concern}.",
+            "{subject} is a top product-ML profile. Strength: {strength}. Role match: {jd}. Concern: {concern}.",
         ],
         _RANK_MID: [
             "{subject} is a solid product-ML fit: {strength}. JD connection: {jd}. Concern: {concern}.",
-            "Positive note for {subject}: {strength}. Evidence aligns with {jd}. Concern: {concern}.",
+            "{subject} with strong evidence: {strength}. Evidence aligns with {jd}. Concern: {concern}.",
             "{subject} with production ownership via {strength}. JD link: {jd}. Concern: {concern}.",
-            "Product-ML evidence for {subject}: {strength}. Fits {jd}. Concern: {concern}.",
+            "{subject} has product-ML evidence: {strength}. Fits {jd}. Concern: {concern}.",
         ],
         _RANK_LOW: [
             "{subject} clears the bar narrowly as product-ML: {strength}. JD match is {jd}. Concern: {concern}.",
-            "Borderline product-ML: {subject}. Best proof is {strength}. JD connection is {jd}. Concern: {concern}.",
+            "{subject} is borderline product-ML. Best proof is {strength}. JD connection is {jd}. Concern: {concern}.",
             "{subject} has some production-ML signal from {strength}. JD link: {jd}. Concern: {concern}.",
-            "Low-band note: {subject} with {strength}. Limited JD fit to {jd}. Concern: {concern}.",
+            "{subject} with limited product-ML signal: {strength}. JD fit to {jd}. Concern: {concern}.",
         ],
     },
-    # 2. search — strong retrieval/search/vector experience
     "search": {
         _RANK_TOP: [
             "{subject} is strongest on search/retrieval: {strength}. JD link: {jd}. Concern: {concern}.",
-            "Search-fit leader: {subject} with {strength}. JD connection: {jd}. Concern: {concern}.",
-            "{subject}; evidence points to {jd} rather than generic ML. Strength: {strength}. Concern: {concern}.",
-            "Top search/retrieval profile: {subject}. Best proof: {strength}. Role match: {jd}. Concern: {concern}.",
+            "{subject} with strong retrieval evidence: {strength}. JD connection: {jd}. Concern: {concern}.",
+            "{subject} has deep search expertise: {strength}. JD link: {jd}. Concern: {concern}.",
+            "{subject} is a top search/retrieval profile. Best proof: {strength}. Role match: {jd}. Concern: {concern}.",
         ],
         _RANK_MID: [
             "{subject} maps to the retrieval-heavy parts of the JD through {jd}. Strength: {strength}. Concern: {concern}.",
-            "Search-fit note for {subject}: {strength}. JD connection: {jd}. Concern: {concern}.",
+            "{subject} with retrieval/search depth: {strength}. JD connection: {jd}. Concern: {concern}.",
             "{subject} with retrieval/search depth: {strength}. Fits {jd}. Concern: {concern}.",
-            "Strong search signal from {subject}: {strength}. Evidence aligns with {jd}. Concern: {concern}.",
+            "{subject} has strong search signal: {strength}. Evidence aligns with {jd}. Concern: {concern}.",
         ],
         _RANK_LOW: [
             "{subject} has retrieval evidence but limited breadth: {strength}. JD link: {jd}. Concern: {concern}.",
-            "Low-band search note: {subject}. Best proof: {strength}. JD connection is {jd}. Concern: {concern}.",
+            "{subject} with some search signal from {strength}. JD connection is {jd}. Concern: {concern}.",
             "{subject} with some search signal from {strength}. Limited fit to {jd}. Concern: {concern}.",
-            "Borderline search profile: {subject}. Evidence: {strength}. JD match: {jd}. Concern: {concern}.",
+            "{subject} has limited search profile: {strength}. JD match: {jd}. Concern: {concern}.",
         ],
     },
-    # 3. behavioral — strong platform signals but lighter technical proof
     "behavioral": {
         _RANK_TOP: [
             "{subject} has strong Redrob signals: {behavior}. Strength: {strength}. JD link: {jd}. Concern: {concern}.",
-            "High engagement profile: {subject}. Platform signals show {behavior}. Evidence: {strength}. Concern: {concern}.",
+            "{subject} shows high engagement. Platform signals: {behavior}. Evidence: {strength}. Concern: {concern}.",
             "{subject} with useful Redrob signals ({behavior}). Strength: {strength}. JD connection: {jd}. Concern: {concern}.",
-            "Behavioral-fit leader: {subject}. Active via {behavior}. Best proof: {strength}. Concern: {concern}.",
+            "{subject} is a behavioral-fit leader. Active via {behavior}. Best proof: {strength}. Concern: {concern}.",
         ],
         _RANK_MID: [
-            "Behavioral fit helps {subject}: {behavior}. Strength: {strength}. JD connection: {jd}. Concern: {concern}.",
-            "Useful availability profile for {subject}: {behavior}. Evidence: {strength}. Concern: {concern}.",
+            "{subject} shows strong behavioral fit: {behavior}. Strength: {strength}. JD connection: {jd}. Concern: {concern}.",
+            "{subject} has useful availability profile: {behavior}. Evidence: {strength}. Concern: {concern}.",
             "{subject} is more of a behavioral-fit bet than a lock. Strength: {strength}. JD link: {jd}. Concern: {concern}.",
-            "Good platform engagement for {subject}: {behavior}. Fits {jd}. Concern: {concern}.",
+            "{subject} has good platform engagement: {behavior}. Fits {jd}. Concern: {concern}.",
         ],
         _RANK_LOW: [
             "{subject} shows availability but lighter technical proof: {behavior}. Strength: {strength}. Concern: {concern}.",
-            "Low-band behavioral note: {subject}. Platform signals: {behavior}. Evidence: {strength}. Concern: {concern}.",
+            "{subject} with platform signals ({behavior}). Evidence: {strength}. Concern: {concern}.",
             "{subject} with engagement signals ({behavior}) but limited JD alignment to {jd}. Concern: {concern}.",
-            "Borderline behavioral fit: {subject}. Active via {behavior}. Concern: {concern}.",
+            "{subject} has behavioral signals ({behavior}) but thin evidence: {strength}. Concern: {concern}.",
         ],
     },
-    # 4. risky — consulting-only, research-only, framework-only, keyword stuffer
     "risky": {
         _RANK_TOP: [
-            "Risky include: {subject}. Strength: {strength}. JD link: {jd}. Concern: {concern}.",
             "{subject} has some signal from {strength}, but this is not a clean shortlist profile. Concern: {concern}.",
-            "Cautious note on {subject}: {strength} is the main positive. JD fit: {jd}. Concern: {concern}.",
+            "{subject} shows {strength} as the main positive. JD fit: {jd}. Concern: {concern}.",
             "{subject} remains risky despite {strength}. JD connection: {jd}. Concern: {concern}.",
+            "{subject} with limited clean signal: {strength}. JD link: {jd}. Concern: {concern}.",
         ],
         _RANK_MID: [
-            "Cautious include: {subject}. Strength: {strength}. JD link: {jd}. Concern: {concern}.",
+            "{subject} is a cautious include: {strength}. JD link: {jd}. Concern: {concern}.",
             "{subject} with {strength} but notable risk. JD connection: {jd}. Concern: {concern}.",
-            "Risk-adjusted note: {subject}. Best proof: {strength}. Fits {jd}. Concern: {concern}.",
-            "Include with caveats: {subject}. Evidence: {strength}. JD match: {jd}. Concern: {concern}.",
+            "{subject} with risk-adjusted score: {strength}. Fits {jd}. Concern: {concern}.",
+            "{subject} is an include with caveats: {strength}. JD match: {jd}. Concern: {concern}.",
         ],
         _RANK_LOW: [
-            "Low confidence: {subject}. Strength: {strength}. JD link: {jd}. Concern: {concern}.",
+            "{subject} is low confidence: {strength}. JD link: {jd}. Concern: {concern}.",
             "{subject} barely clears the bar. Best proof: {strength}. Concern: {concern}.",
-            "Weak include: {subject}. Limited signal from {strength}. Concern: {concern}.",
-            "Borderline and risky: {subject}. Some evidence: {strength}. Concern: {concern}.",
+            "{subject} is a weak include: {strength}. Concern: {concern}.",
+            "{subject} is borderline and risky: {strength}. Concern: {concern}.",
         ],
     },
-    # 5. borderline — low score, thin evidence
     "borderline": {
         _RANK_TOP: [
-            "Borderline include from {location}: {subject}. Strength: {strength}. JD link: {jd}. Concern: {concern}.",
             "{subject} clears the bar narrowly. Strength: {strength}. JD link: {jd}. Concern: {concern}.",
-            "Marginal but relevant: {subject}. Best proof: {strength}. Concern: {concern}.",
-            "Low-band note: {subject} has {strength}. JD match is limited to {jd}. Concern: {concern}.",
+            "{subject} has limited signal from {strength}. JD link: {jd}. Concern: {concern}.",
+            "{subject} is marginal but relevant: {strength}. Concern: {concern}.",
+            "{subject} has {strength}. JD match is limited to {jd}. Concern: {concern}.",
         ],
         _RANK_MID: [
-            "Borderline: {subject}. Strength: {strength}. JD link: {jd}. Concern: {concern}.",
-            "Marginal fit: {subject}. Best evidence: {strength}. Concern: {concern}.",
+            "{subject} is borderline: {strength}. JD link: {jd}. Concern: {concern}.",
+            "{subject} has marginal fit: {strength}. Concern: {concern}.",
             "{subject} with limited signal from {strength}. Concern: {concern}.",
-            "Thin profile: {subject}. Some evidence: {strength}. JD match: {jd}. Concern: {concern}.",
+            "{subject} has thin profile with {strength}. JD match: {jd}. Concern: {concern}.",
         ],
         _RANK_LOW: [
-            "Very thin profile: {subject}. Strength: {strength}. Concern: {concern}.",
-            "{subject} clears the bar only narrowly. Best proof: {strength}. Concern: {concern}.",
-            "Low confidence include: {subject}. Limited evidence: {strength}. Concern: {concern}.",
-            "Borderline low-band: {subject}. Some signal: {strength}. Concern: {concern}.",
+            "{subject} has very thin profile: {strength}. Concern: {concern}.",
+            "{subject} clears the bar only narrowly: {strength}. Concern: {concern}.",
+            "{subject} is low confidence include: {strength}. Concern: {concern}.",
+            "{subject} is borderline low-band: {strength}. Concern: {concern}.",
         ],
     },
-    # 6. production — strong production delivery but weaker ownership or evaluation
     "production": {
         _RANK_TOP: [
             "{subject} brings deep production delivery: {strength}. JD connection: {jd}. Concern: {concern}.",
-            "Production-focused profile: {subject} with {strength}. Fits {jd}. Concern: {concern}.",
-            "{subject}; strong production track record: {strength}. JD link: {jd}. Concern: {concern}.",
-            "Top production-delivery candidate: {subject}. Strength: {strength}. Concern: {concern}.",
+            "{subject} with strong production delivery: {strength}. Fits {jd}. Concern: {concern}.",
+            "{subject} has strong production track record: {strength}. JD link: {jd}. Concern: {concern}.",
+            "{subject} is a top production-delivery candidate. Strength: {strength}. Concern: {concern}.",
         ],
         _RANK_MID: [
             "{subject} has production delivery evidence: {strength}. JD link: {jd}. Concern: {concern}.",
-            "Solid production signal from {subject}: {strength}. Fits {jd}. Concern: {concern}.",
+            "{subject} shows solid production signal: {strength}. Fits {jd}. Concern: {concern}.",
             "{subject} with shipped systems: {strength}. JD connection: {jd}. Concern: {concern}.",
-            "Production delivery for {subject}: {strength}. Evidence aligns with {jd}. Concern: {concern}.",
+            "{subject} has production delivery evidence: {strength}. Evidence aligns with {jd}. Concern: {concern}.",
         ],
         _RANK_LOW: [
             "{subject} has some production evidence: {strength}. JD link: {jd}. Concern: {concern}.",
-            "Low-band production note: {subject}. Best proof: {strength}. Concern: {concern}.",
             "{subject} with limited production breadth: {strength}. Concern: {concern}.",
-            "Borderline production fit: {subject}. Evidence: {strength}. Concern: {concern}.",
+            "{subject} has limited production breadth: {strength}. Concern: {concern}.",
+            "{subject} has limited production fit: {strength}. Evidence: {jd}. Concern: {concern}.",
         ],
     },
-    # 7. active_dev — good behavioral signals + some technical evidence
     "active_dev": {
         _RANK_TOP: [
             "{subject} is an active developer with engagement signals: {behavior}. Strength: {strength}. Concern: {concern}.",
-            "Active-dev profile: {subject}. Platform signals: {behavior}. Best proof: {strength}. Concern: {concern}.",
-            "{subject}; high engagement ({behavior}) plus {strength}. JD link: {jd}. Concern: {concern}.",
-            "Engaged developer: {subject}. Activity: {behavior}. Evidence: {strength}. Concern: {concern}.",
+            "{subject} shows strong developer activity: {behavior}. Best proof: {strength}. Concern: {concern}.",
+            "{subject} has high engagement ({behavior}) plus {strength}. JD link: {jd}. Concern: {concern}.",
+            "{subject} is an engaged developer. Activity: {behavior}. Evidence: {strength}. Concern: {concern}.",
         ],
         _RANK_MID: [
             "{subject} shows active development: {behavior}. Strength: {strength}. Concern: {concern}.",
-            "Active-dev note: {subject}. Platform signals: {behavior}. Fits {jd}. Concern: {concern}.",
             "{subject} with developer engagement: {behavior}. Best proof: {strength}. Concern: {concern}.",
-            "Good developer activity for {subject}: {behavior}. Evidence: {strength}. Concern: {concern}.",
+            "{subject} with developer engagement: {behavior}. Best proof: {strength}. Concern: {concern}.",
+            "{subject} has good developer activity: {behavior}. Evidence: {strength}. Concern: {concern}.",
         ],
         _RANK_LOW: [
             "{subject} has developer activity but limited JD alignment: {behavior}. Concern: {concern}.",
-            "Low-band active-dev: {subject}. Signals: {behavior}. Concern: {concern}.",
+            "{subject} with platform signals: {behavior}. Concern: {concern}.",
             "{subject} with some engagement ({behavior}) but thin evidence: {strength}. Concern: {concern}.",
-            "Borderline active-dev: {subject}. Activity: {behavior}. Concern: {concern}.",
+            "{subject} has developer activity ({behavior}) but limited evidence: {strength}. Concern: {concern}.",
         ],
     },
-    # 8. github_strong — strong GitHub / open-source presence
     "github_strong": {
         _RANK_TOP: [
             "{subject} has strong GitHub presence: {github}. Strength: {strength}. Concern: {concern}.",
-            "Top GitHub profile: {subject}. Activity: {github}. Best proof: {strength}. Concern: {concern}.",
-            "{subject}; active open-source contributor ({github}). Evidence: {strength}. Concern: {concern}.",
-            "Strong developer signal: {subject} via {github}. Strength: {strength}. Concern: {concern}.",
+            "{subject} is a top GitHub profile. Activity: {github}. Best proof: {strength}. Concern: {concern}.",
+            "{subject} is an active open-source contributor ({github}). Evidence: {strength}. Concern: {concern}.",
+            "{subject} shows strong developer signal via {github}. Strength: {strength}. Concern: {concern}.",
         ],
         _RANK_MID: [
             "{subject} with notable GitHub activity: {github}. Strength: {strength}. Concern: {concern}.",
-            "Good GitHub presence for {subject}: {github}. Fits {jd}. Concern: {concern}.",
+            "{subject} has good GitHub presence: {github}. Fits {jd}. Concern: {concern}.",
             "{subject} shows open-source work ({github}). Evidence: {strength}. Concern: {concern}.",
-            "Developer signal from {subject}: {github}. Best proof: {strength}. Concern: {concern}.",
+            "{subject} has developer signal: {github}. Best proof: {strength}. Concern: {concern}.",
         ],
         _RANK_LOW: [
             "{subject} has some GitHub presence: {github}. Limited evidence: {strength}. Concern: {concern}.",
-            "Low-band GitHub note: {subject}: {github}. Concern: {concern}.",
+            "{subject} with GitHub activity ({github}). Concern: {concern}.",
             "{subject} with developer activity ({github}) but thin JD fit. Concern: {concern}.",
-            "Borderline GitHub profile: {subject}: {github}. Concern: {concern}.",
+            "{subject} has borderline GitHub profile: {github}. Concern: {concern}.",
         ],
     },
-    # 9. skill_focused — strong skills but limited career evidence
     "skill_focused": {
         _RANK_TOP: [
             "{subject} with strong skill evidence: {skills}. JD connection: {jd}. Concern: {concern}.",
-            "Skill-focused profile: {subject}. Key skills: {skills}. Fits {jd}. Concern: {concern}.",
-            "{subject}; skill depth includes {skills}. Evidence aligns with {jd}. Concern: {concern}.",
-            "Top skill profile: {subject} with {skills}. JD link: {jd}. Concern: {concern}.",
+            "{subject} is a skill-focused profile. Key skills: {skills}. Fits {jd}. Concern: {concern}.",
+            "{subject} has skill depth including {skills}. Evidence aligns with {jd}. Concern: {concern}.",
+            "{subject} is a top skill profile with {skills}. JD link: {jd}. Concern: {concern}.",
         ],
         _RANK_MID: [
             "{subject} has relevant skills: {skills}. JD link: {jd}. Concern: {concern}.",
-            "Skill note for {subject}: {skills}. Fits {jd}. Concern: {concern}.",
             "{subject} with {skills} as key evidence. JD connection: {jd}. Concern: {concern}.",
-            "Skill-focused: {subject}. Key skills: {skills}. Concern: {concern}.",
+            "{subject} with {skills} as key evidence. JD connection: {jd}. Concern: {concern}.",
+            "{subject} is skill-focused with {skills}. Concern: {concern}.",
         ],
         _RANK_LOW: [
             "{subject} has skills but limited career proof: {skills}. Concern: {concern}.",
-            "Low-band skill note: {subject}: {skills}. Concern: {concern}.",
+            "{subject} with {skills} but limited evidence. Concern: {concern}.",
             "{subject} with {skills} but thin formal evidence. Concern: {concern}.",
-            "Borderline skill profile: {subject}. Skills: {skills}. Concern: {concern}.",
+            "{subject} has borderline skill profile: {skills}. Concern: {concern}.",
         ],
     },
-    # 10. general — default for everything else
     "general": {
         _RANK_TOP: [
             "{subject}. Strength: {strength}. JD link: {jd}. Concern: {concern}.",
-            "{title} at {company} brings {strength}. JD connection is {jd}. Concern: {concern}.",
-            "{subject}; strongest proof is {strength}. Role fit comes from {jd}. Concern: {concern}.",
+            "{subject} brings {strength}. JD connection is {jd}. Concern: {concern}.",
+            "{subject} has strongest proof in {strength}. Role fit comes from {jd}. Concern: {concern}.",
             "{subject} is a plausible fit via {strength}. JD link: {jd}. Concern: {concern}.",
         ],
         _RANK_MID: [
             "{subject} with evidence from {strength}. JD link: {jd}. Concern: {concern}.",
-            "Positive note: {subject}. Best proof: {strength}. Fits {jd}. Concern: {concern}.",
-            "{subject}; evidence aligns with {jd}. Strength: {strength}. Concern: {concern}.",
-            "Plausible fit: {subject}. Evidence from {strength}. Concern: {concern}.",
+            "{subject} has strong evidence: {strength}. Fits {jd}. Concern: {concern}.",
+            "{subject} with evidence aligning with {jd}. Strength: {strength}. Concern: {concern}.",
+            "{subject} is a plausible fit with {strength}. Concern: {concern}.",
         ],
         _RANK_LOW: [
             "{subject} with limited signal from {strength}. Concern: {concern}.",
-            "Low-band note: {subject}. Some evidence: {strength}. Concern: {concern}.",
-            "{subject} clears the bar only narrowly. Best proof: {strength}. Concern: {concern}.",
-            "Thin profile: {subject}. Limited evidence: {strength}. Concern: {concern}.",
+            "{subject} has some evidence: {strength}. Concern: {concern}.",
+            "{subject} clears the bar only narrowly: {strength}. Concern: {concern}.",
+            "{subject} has thin profile: {strength}. Concern: {concern}.",
         ],
     },
 }
