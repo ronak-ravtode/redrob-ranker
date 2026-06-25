@@ -1,0 +1,19 @@
+docs/evaluation.md
+  s_25cba23caf17dd::t_bd15bc81b2bd89 34,36,38-46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.13",
+  "base_commit_sha": "4ee95f073b121f86b2dede3a3119b28f67c05999",
+  "prompts": {},
+  "sessions": {
+    "s_25cba23caf17dd": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_10a84cc1bffel9v3cHVHwdh5wU",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    }
+  }
+}
