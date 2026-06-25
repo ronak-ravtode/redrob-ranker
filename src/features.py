@@ -85,6 +85,55 @@ def _skill_groups(candidate: dict[str, Any]) -> dict[str, int]:
     return _group_evidence(_skills_text(candidate))
 
 
+def _skill_duration_score(candidate: dict[str, Any]) -> float:
+    """Weight skills by how long the candidate has used them.
+
+    Skills with 24+ months are fully weighted; shorter durations are scaled down.
+    This penalizes candidates who recently added trendy skills without depth.
+    """
+    skills = candidate.get("skills", [])
+    if not skills:
+        return 0.0
+    total_weight = 0.0
+    weighted_sum = 0.0
+    for skill in skills:
+        months = _safe_int(skill.get("duration_months", 0))
+        weight = min(1.0, months / 24.0)  # full weight at 24+ months
+        total_weight += weight
+        weighted_sum += weight
+    return clipped(weighted_sum / len(skills)) if skills else 0.0
+
+
+COMPANY_SIZE_SCORE = {
+    "1-10": 0.30, "11-50": 0.45, "51-200": 0.60,
+    "201-500": 0.70, "501-1000": 0.80, "1001-5000": 0.85,
+    "5001-10000": 0.90, "10001+": 0.95,
+}
+
+TECH_INDUSTRIES = {
+    "technology", "computer software", "information technology", "it services",
+    "artificial intelligence", "machine learning", "data science", "analytics",
+    "internet", "saas", "cloud computing", " cybersecurity", "fintech",
+    "health tech", "edtech", "e-commerce", "telecommunications",
+}
+
+
+def _company_size_score(candidate: dict[str, Any]) -> float:
+    """Map current company size to a 0-1 scale. Larger companies signal more structure."""
+    size = normalize(candidate.get("profile", {}).get("current_company_size", ""))
+    return COMPANY_SIZE_SCORE.get(size, 0.50)
+
+
+def _industry_fit(candidate: dict[str, Any]) -> float:
+    """Minor signal: tech-adjacent industries are preferred for an AI engineering role."""
+    industry = normalize(candidate.get("profile", {}).get("current_industry", ""))
+    if not industry:
+        return 0.50
+    if any(term in industry for term in TECH_INDUSTRIES):
+        return 0.85
+    return 0.50
+
+
 def _group_evidence(text: str) -> dict[str, int]:
     return {name: len(set(regex.findall(text))) for name, regex in GROUP_REGEX.items()}
 
@@ -284,6 +333,22 @@ def _behavior_fit(candidate: dict[str, Any]) -> float:
     )
 
 
+def _education_fit(candidate: dict[str, Any]) -> float:
+    """Education quality signal from institution tiering.
+
+    Tier 1 institutions are a minor positive signal; tier 3/4 is neutral.
+    Used as a tiebreaker, not a gate — the JD does not require specific degrees.
+    """
+    education = candidate.get("education", [])
+    if not education:
+        return 0.5  # neutral when no education data
+    tiers = [edu.get("tier", "unknown") for edu in education]
+    # Weighted average: most recent degree matters more.
+    tier_scores = {"tier_1": 1.0, "tier_2": 0.75, "tier_3": 0.50, "tier_4": 0.40, "unknown": 0.50}
+    scores = [tier_scores.get(t, 0.50) for t in tiers]
+    return scores[-1] if scores else 0.50
+
+
 def _notice_fit(candidate: dict[str, Any]) -> float:
     days = _safe_int(candidate.get("redrob_signals", {}).get("notice_period_days", 180), 180)
     if days <= 30:
@@ -389,6 +454,10 @@ def extract_features(candidate: dict[str, Any], anomaly_flags: list[str]) -> dic
             "behavior_fit": _behavior_fit(candidate),
             "notice_fit": _notice_fit(candidate),
             "salary_fit": _salary_fit(candidate),
+            "education_fit": _education_fit(candidate),
+            "skill_duration_score": _skill_duration_score(candidate),
+            "company_size_score": _company_size_score(candidate),
+            "industry_fit": _industry_fit(candidate),
             "anomaly_flags": anomaly_flags,
             "anomaly_confidence": 0.0,
             "anomaly_action": "none",
@@ -458,6 +527,10 @@ def extract_features(candidate: dict[str, Any], anomaly_flags: list[str]) -> dic
         "behavior_fit": _behavior_fit(candidate),
         "notice_fit": _notice_fit(candidate),
         "salary_fit": _salary_fit(candidate),
+        "education_fit": _education_fit(candidate),
+        "skill_duration_score": _skill_duration_score(candidate),
+        "company_size_score": _company_size_score(candidate),
+        "industry_fit": _industry_fit(candidate),
         "anomaly_flags": anomaly_flags,
         "anomaly_confidence": 0.0,
         "anomaly_action": "none",
