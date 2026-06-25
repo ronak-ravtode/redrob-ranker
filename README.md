@@ -130,8 +130,9 @@ make docker-run     # Run container
 ## Documentation
 
 - [Architecture](docs/architecture.md) — Pipeline design and scoring weights
-- [Evaluation](docs/evaluation.md) — Metrics and known limitations
+- [Evaluation](docs/evaluation.md) — Metrics, fairness, and known limitations
 - [Judge Notes](docs/judge_notes.md) — Quick start and file map
+- [Judge Q&A](docs/judge_qa.md) — Prepared answers for common questions
 
 ## AI Use
 
