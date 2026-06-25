@@ -42,6 +42,9 @@ def base_features():
         "title_trajectory": 0.75,
         "job_stability": 0.9,
         "skill_corroboration": 0.0,
+        "current_relevance_score": 0.0,
+        "measured_impact_score": 0.0,
+        "education_field_fit": 0.5,
     }
 
 
@@ -107,6 +110,52 @@ class ScoringTests(unittest.TestCase):
         self.assertEqual(features["years"], 0.0)
         self.assertGreaterEqual(features["behavior_fit"], 0.0)
         self.assertGreaterEqual(features["notice_fit"], 0.0)
+
+    def test_grounded_recruiter_signals_lift_score(self):
+        baseline = base_features()
+        baseline["career"].update({"ranking": 2, "retrieval": 2, "evaluation": 1})
+        baseline["career_core"] = 5
+
+        enhanced = dict(baseline)
+        enhanced["career"] = dict(baseline["career"])
+        enhanced.update({
+            "current_relevance_score": 1.0,
+            "measured_impact_score": 1.0,
+            "education_field_fit": 1.0,
+        })
+
+        score_baseline, _ = score_features(baseline)
+        score_enhanced, parts = score_features(enhanced)
+        self.assertGreater(score_enhanced, score_baseline)
+        self.assertGreater(parts["supporting"], 0.0)
+
+    def test_extracts_new_signals_from_existing_fields(self):
+        candidate = {
+            "candidate_id": "CAND_9999997",
+            "profile": {
+                "years_of_experience": 7.0,
+                "current_title": "Search ML Engineer",
+                "current_company": "Acme",
+                "country": "India",
+                "location": "Pune",
+            },
+            "career_history": [
+                {
+                    "title": "Search ML Engineer",
+                    "company": "Acme",
+                    "description": "Owned ranking and retrieval models, improving NDCG by 8% and p95 latency by 20ms.",
+                    "duration_months": 36,
+                    "is_current": True,
+                }
+            ],
+            "education": [{"field_of_study": "Computer Science", "tier": "tier_2"}],
+            "skills": [{"name": "Python", "proficiency": "expert", "duration_months": 48}],
+            "redrob_signals": {"last_active_date": "2026-05-15"},
+        }
+        features = extract_features(candidate, [])
+        self.assertGreater(features["current_relevance_score"], 0.0)
+        self.assertEqual(features["measured_impact_score"], 1.0)
+        self.assertEqual(features["education_field_fit"], 1.0)
 
 
 if __name__ == "__main__":

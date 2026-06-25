@@ -24,14 +24,10 @@ def _resolve_model_dir() -> Path | None:
     for p in candidates:
         if p.exists():
             return p
-    try:
-        from sentence_transformers import SentenceTransformer
-        target = Path("models") / "all-MiniLM-L6-v2"
-        target.mkdir(parents=True, exist_ok=True)
-        SentenceTransformer("all-MiniLM-L6-v2").save(str(target))
-        return target
-    except Exception:
-        return None
+    # Stage 3 runs in a no-network sandbox. If the model is not already vendored
+    # locally, use the deterministic domain embedding fallback instead of trying
+    # to download anything from Hugging Face.
+    return None
 
 
 def _is_deterministic() -> bool:

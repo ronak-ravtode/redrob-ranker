@@ -117,6 +117,21 @@ TECH_INDUSTRIES = {
     "health tech", "edtech", "e-commerce", "telecommunications",
 }
 
+TECH_EDUCATION_FIELDS = (
+    "computer science",
+    "information technology",
+    "software engineering",
+    "data science",
+    "machine learning",
+    "artificial intelligence",
+    "mathematics",
+    "statistics",
+)
+
+IMPACT_REGEX = re.compile(
+    r"(?<![a-z0-9])(?:\d+(?:\.\d+)?\s?(?:%|ms|s|x|k|m|gb|tb)|p95|p99|latency|throughput|conversion|ctr|recall|ndcg|mrr|map)(?![a-z0-9])"
+)
+
 
 def _company_size_score(candidate: dict[str, Any]) -> float:
     """Map current company size to a 0-1 scale. Larger companies signal more structure."""
@@ -293,7 +308,7 @@ def _behavior_fit(candidate: dict[str, Any]) -> float:
     github_norm = 0.0 if github < 0 else clipped(github / 100.0)
     verified = sum(bool(signals.get(k)) for k in ("verified_email", "verified_phone", "linkedin_connected")) / 3.0
 
-    # New signals: organic demand, platform visibility, profile engagement.
+    # Organic demand, platform visibility, profile engagement.
     profile_views = clipped(math.log1p(max(0, _safe_int(signals.get("profile_views_received_30d", 0)))) / math.log(20))
     searchAppear = clipped(math.log1p(max(0, _safe_int(signals.get("search_appearance_30d", 0)))) / math.log(20))
     completeness = clipped(_safe_float(signals.get("profile_completeness_score", 0)) / 100.0)
@@ -316,21 +331,60 @@ def _behavior_fit(candidate: dict[str, Any]) -> float:
         offer_signal = clipped(offer_raw)
 
     return clipped(
-        0.19 * recency
-        + 0.13 * open_to_work
-        + 0.13 * response_rate
-        + 0.06 * response_speed
-        + 0.10 * interview
-        + 0.05 * saved
-        + 0.04 * github_norm
-        + 0.03 * verified
-        + 0.07 * profile_views
-        + 0.04 * searchAppear
-        + 0.03 * completeness
-        + 0.05 * account_age
-        + 0.04 * connection_norm
+        0.22 * recency
+        + 0.12 * open_to_work
+        + 0.14 * response_rate
+        + 0.05 * response_speed
+        + 0.12 * interview
+        + 0.07 * saved
+        + 0.08 * github_norm
+        + 0.05 * verified
+        + 0.04 * profile_views
+        + 0.03 * searchAppear
+        + 0.02 * completeness
+        + 0.02 * account_age
+        + 0.02 * connection_norm
         + 0.04 * offer_signal
     )
+
+
+AVAILABILITY_FIELDS = (
+    "last_active_date",
+    "open_to_work_flag",
+    "recruiter_response_rate",
+    "interview_completion_rate",
+    "notice_period_days",
+    "verified_email",
+    "verified_phone",
+    "linkedin_connected",
+    "offer_acceptance_rate",
+)
+
+
+def _missing_availability_signals(candidate: dict[str, Any]) -> int:
+    signals = candidate.get("redrob_signals", {})
+    return sum(1 for field in AVAILABILITY_FIELDS if signals.get(field) in (None, ""))
+
+
+def _coding_activity_score(candidate: dict[str, Any]) -> float:
+    signals = candidate.get("redrob_signals", {})
+    github = _safe_float(signals.get("github_activity_score", -1), -1)
+    if github < 0:
+        github_norm = 0.0
+    else:
+        github_norm = clipped(github / 100.0)
+
+    last_active = _date_or_default(signals.get("last_active_date"), date(2020, 1, 1))
+    days = max(0, (REFERENCE_DATE - last_active).days)
+    if days <= 30:
+        recency = 1.0
+    elif days <= 60:
+        recency = 0.75
+    elif days <= 120:
+        recency = 0.40
+    else:
+        recency = 0.05
+    return clipped(0.70 * github_norm + 0.30 * recency)
 
 
 def _education_fit(candidate: dict[str, Any]) -> float:
@@ -347,6 +401,49 @@ def _education_fit(candidate: dict[str, Any]) -> float:
     tier_scores = {"tier_1": 1.0, "tier_2": 0.75, "tier_3": 0.50, "tier_4": 0.40, "unknown": 0.50}
     scores = [tier_scores.get(t, 0.50) for t in tiers]
     return scores[-1] if scores else 0.50
+
+
+def _education_field_fit(candidate: dict[str, Any]) -> float:
+    education = candidate.get("education", [])
+    if not education:
+        return 0.5
+    fields = " ".join(normalize(edu.get("field_of_study")) for edu in education)
+    if not fields:
+        return 0.5
+    if any(field in fields for field in TECH_EDUCATION_FIELDS):
+        return 1.0
+    if any(term in fields for term in ("engineering", "physics", "economics")):
+        return 0.7
+    return 0.45
+
+
+def _current_relevance_score(title_relevant: bool, current: dict[str, int]) -> float:
+    current_core = current["ranking"] + current["retrieval"] + current["evaluation"]
+    if current_core >= 3 and title_relevant:
+        return 1.0
+    if current_core >= 2:
+        return 0.8
+    if current_core >= 1 and title_relevant:
+        return 0.65
+    if title_relevant:
+        return 0.45
+    return 0.0
+
+
+def _measured_impact_score(candidate: dict[str, Any]) -> float:
+    relevant_jobs = 0
+    measured_jobs = 0
+    for job in candidate.get("career_history", []):
+        text = normalize(f"{job.get('title', '')} {job.get('description', '')}")
+        ev = _group_evidence(text)
+        if ev["ranking"] + ev["retrieval"] + ev["evaluation"] < 1:
+            continue
+        relevant_jobs += 1
+        if IMPACT_REGEX.search(text):
+            measured_jobs += 1
+    if not relevant_jobs:
+        return 0.0
+    return clipped(measured_jobs / relevant_jobs)
 
 
 def _notice_fit(candidate: dict[str, Any]) -> float:
@@ -421,6 +518,8 @@ def extract_features(candidate: dict[str, Any], anomaly_flags: list[str]) -> dic
     title_relevant = contains_any(current_title, RELEVANT_TITLE_TERMS)
     total_months, consulting_months, product_months = _company_mix(candidate)
     company_history = 1.0 if product_months > 0 else 0.0
+    coding_activity_score = _coding_activity_score(candidate)
+    missing_availability_signals = _missing_availability_signals(candidate)
 
     # Fast path: most of the 100K pool is obviously unrelated. Avoid dozens of
     # regex scans for profiles with neither a relevant title nor career evidence.
@@ -455,9 +554,15 @@ def extract_features(candidate: dict[str, Any], anomaly_flags: list[str]) -> dic
             "notice_fit": _notice_fit(candidate),
             "salary_fit": _salary_fit(candidate),
             "education_fit": _education_fit(candidate),
+            "education_field_fit": _education_field_fit(candidate),
             "skill_duration_score": _skill_duration_score(candidate),
+            "coding_activity_score": coding_activity_score,
+            "missing_availability_signals": missing_availability_signals,
+            "framework_only": False,
             "company_size_score": _company_size_score(candidate),
             "industry_fit": _industry_fit(candidate),
+            "current_relevance_score": 0.0,
+            "measured_impact_score": 0.0,
             "anomaly_flags": anomaly_flags,
             "anomaly_confidence": 0.0,
             "anomaly_action": "none",
@@ -485,6 +590,8 @@ def extract_features(candidate: dict[str, Any], anomaly_flags: list[str]) -> dic
     career_core = career["ranking"] + career["retrieval"] + career["evaluation"]
     keyword_stuffer = ai_skill_mentions >= 3 and career_core == 0
     skill_corroboration = _skill_corroboration(career, skill_ev, candidate)
+    current_relevance_score = _current_relevance_score(title_relevant, current)
+    measured_impact_score = _measured_impact_score(candidate)
 
     negative_flags: list[str] = []
     combined_non_skill = f"{career_text} {profile_text}"
@@ -494,9 +601,14 @@ def extract_features(candidate: dict[str, Any], anomaly_flags: list[str]) -> dic
 
     cv_only = "cv_speech_only" in negative_flags and career_core == 0
     research_only = (
-        "research" in current_title
+        ("research" in current_title or "research_only" in negative_flags)
         and career["production"] == 0
         and career["ownership"] < 2
+    )
+    framework_only = (
+        "framework_tutorial_only" in negative_flags
+        and career["production"] == 0
+        and career_core < 3
     )
 
     return {
@@ -528,9 +640,15 @@ def extract_features(candidate: dict[str, Any], anomaly_flags: list[str]) -> dic
         "notice_fit": _notice_fit(candidate),
         "salary_fit": _salary_fit(candidate),
         "education_fit": _education_fit(candidate),
+        "education_field_fit": _education_field_fit(candidate),
         "skill_duration_score": _skill_duration_score(candidate),
+        "coding_activity_score": coding_activity_score,
+        "missing_availability_signals": missing_availability_signals,
+        "framework_only": framework_only,
         "company_size_score": _company_size_score(candidate),
         "industry_fit": _industry_fit(candidate),
+        "current_relevance_score": current_relevance_score,
+        "measured_impact_score": measured_impact_score,
         "anomaly_flags": anomaly_flags,
         "anomaly_confidence": 0.0,
         "anomaly_action": "none",
