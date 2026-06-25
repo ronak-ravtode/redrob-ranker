@@ -1,0 +1,25 @@
+docs/evaluation.md
+  s_25cba23caf17dd::t_88dacf7defe619 39-64
+docs/judge_qa.md
+  s_25cba23caf17dd::t_1c30c612288687 1-91
+sandbox_app.py
+  s_25cba23caf17dd::t_50753e04d32fe6 7,17,19-30,33-36,38-39,42-133,137-143,145,162,168,173-179
+README.md
+  s_25cba23caf17dd::t_83b637060a5e66 133,135
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.13",
+  "base_commit_sha": "e42126e6e2fb12013364f96cee0d6433b4ea725a",
+  "prompts": {},
+  "sessions": {
+    "s_25cba23caf17dd": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_10a84cc1bffel9v3cHVHwdh5wU",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    }
+  }
+}
