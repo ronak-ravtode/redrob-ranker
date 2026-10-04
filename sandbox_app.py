@@ -42,16 +42,35 @@ FORM = """<!doctype html>
 </html>"""
 
 
+def _score_bar_width(score: float, lowest: float, highest: float) -> float:
+    """Bar width in px, scaled across the rows on screen.
+
+    Absolute score * 100 is useless here: the composite score is an unbounded
+    weighted sum that clusters in a narrow band, so every row rendered an
+    identical ~10px stub. Scaling the visible range makes the gaps readable;
+    the exact score stays in the Score column.
+    """
+    span = highest - lowest
+    if span <= 0:
+        return 100.0
+    ratio = (score - lowest) / span
+    return round(8.0 + 92.0 * ratio, 2)
+
+
 def _build_results_html(ranked: list[dict]) -> str:
+    shown = ranked[:10]
+    scores = [row["score"] for row in shown] or [0.0]
+    lowest, highest = min(scores), max(scores)
+
     rows_html = []
-    for rank, row in enumerate(ranked[:10], start=1):
+    for rank, row in enumerate(shown, start=1):
         candidate = row["candidate"]
         features = row["features"]
         parts = row["score_parts"]
         profile = candidate.get("profile", {})
         reasoning = build_reason(candidate, features, row["score"])
 
-        score_bar_width = min(100, max(5, row["score"] * 100))
+        score_bar_width = _score_bar_width(row["score"], lowest, highest)
         evidence_pct = f"{parts['evidence']:.3f}"
         semantic_pct = f"{parts['semantic']:.3f}"
         behavior_pct = f"{parts['behavior']:.3f}"
@@ -77,7 +96,7 @@ def _build_results_html(ranked: list[dict]) -> str:
           </td>
           <td style="text-align:right;font-weight:600;font-size:16px;">{row['score']:.4f}</td>
           <td>
-            <div style="background:#e5e7eb;border-radius:4px;height:8px;width:100px;">
+            <div style="background:#e5e7eb;border-radius:4px;height:8px;width:100px;" title="relative to shown rows: {lowest:.4f}-{highest:.4f}">
               <div style="background:#2563eb;border-radius:4px;height:8px;width:{score_bar_width}px;"></div>
             </div>
           </td>
@@ -112,6 +131,7 @@ def _build_results_html(ranked: list[dict]) -> str:
 <h1>Ranking Results</h1>
 <div class="summary">
   <strong>{len(ranked)}</strong> candidates ranked. Top 10 shown below.
+  <div style="color:#666;font-size:13px;margin-top:6px;">Bar is scaled across the top 10 only ({lowest:.4f} to {highest:.4f}) so close scores stay readable. Use the Score column for absolute values.</div>
   <a class="download" href="/download" style="margin-left:16px;">Download Full CSV</a>
   <a class="back" href="/" style="margin-left:16px;">Rank more candidates</a>
 </div>
