@@ -25,7 +25,7 @@ A candidate is "relevant" (grade ≥ 1) if they have ANY career evidence for ran
 
 3. **Reasoning quality**: Each explanation references actual career roles, skills with durations, and specific concerns. No templated "X AI core skills; response rate Y" patterns.
 
-4. **Robustness**: 46 tests covering adversarial inputs, malformed data, determinism, and scoring edge cases.
+4. **Robustness**: 93 tests (plus 30 subtests) covering adversarial inputs, malformed data, determinism, scoring edge cases, and sandbox rendering.
 
 ## Known Limitations
 

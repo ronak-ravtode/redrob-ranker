@@ -47,7 +47,7 @@ candidates.jsonl (100K)
          │
          ▼
 ┌──────────────────┐
-│  Hybrid Score     │  0.75 × evidence + 0.25 × semantic
+│  Hybrid Score     │  0.84 × evidence + 0.16 × semantic
 └────────┬─────────┘
          │
          ▼
@@ -67,13 +67,13 @@ candidates.jsonl (100K)
 pip install -r requirements.txt
 make rank       # Produces Code_With_Errors.csv
 make validate   # Check format
-make test       # Run 46 tests
+make test       # Run 93 tests
 ```
 
 ## Scoring
 
 ```
-final_score = 0.75 × evidence_only + 0.25 × semantic
+final_score = 0.84 × evidence_only + 0.16 × semantic
 ```
 
 **Evidence signals** (68%): Career-history descriptions for ranking, retrieval, evaluation, production ownership, vector infrastructure.
@@ -86,7 +86,7 @@ final_score = 0.75 × evidence_only + 0.25 × semantic
 
 **Behavioral signals** (8.5%): 23 Redrob platform signals (recency, response rate, interview completion, GitHub activity, etc.).
 
-**Penalties**: Keyword stuffing (-0.34), consulting-only (-0.16), CV-only (-0.22), research-only (-0.18), inactive candidates (-0.20).
+**Penalties**: Keyword stuffing (-0.34), consulting-only (-0.30), CV-only (-0.22), research-only (-0.30), framework-only (-0.24), plus bounded availability and anomaly penalties.
 
 ## Modules
 
@@ -109,13 +109,27 @@ final_score = 0.75 × evidence_only + 0.25 × semantic
 make test
 ```
 
-46 tests covering: ontology matching, anomaly exclusion, malformed data, determinism, reasoning quality, scoring edge cases.
+93 tests (plus 30 subtests) covering: ontology matching, anomaly exclusion, malformed data, determinism, reasoning quality, scoring edge cases, and sandbox rendering.
 
-## Runtime
+## Measured Results
 
-- Wall time: ~70s on CPU
-- Memory: <500 MB
-- No GPU, no network, no API calls during ranking
+Full 100,000-candidate run on the declared environment (12 cores, 16 GB RAM, Python 3.14.3, no GPU, no network):
+
+| Metric | Measured |
+|--------|----------|
+| Rank time | 92.01s / 92.12s (two consecutive runs) |
+| Wall clock | 94.19s including process startup |
+| Peak working set | 512.1 MB |
+| Candidates ranked | 100,000 |
+| Submission rows | 100 |
+| Tests | 93 passing + 30 subtests |
+| Validator | `Submission is valid.` |
+| Honeypot rate in top 100 | 0.0% (107 flagged of 100,000 scanned) |
+| Determinism | Byte-identical across runs (SHA256 `55e9fee8…`) |
+
+Most of the 512 MB is interpreter plus numpy/sentence-transformers import overhead; the ranker itself keeps only a bounded top-K heap.
+
+Output ordering is stable by construction: descending score, ties broken by ascending numeric candidate ID.
 
 ## Sandbox
 

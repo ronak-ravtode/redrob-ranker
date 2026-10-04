@@ -14,7 +14,7 @@ We don't have ground-truth labels or recruiter acceptance data. Our evidence:
 
 4. **Ablation**: Semantic-only scoring without career evidence produces weak rankings. Career evidence is the dominant signal (68% weight).
 
-5. **Adversarial robustness**: 46 tests include keyword-stuffers, consulting-only, CV-only, and research-only profiles. System correctly penalizes all.
+5. **Adversarial robustness**: 93 tests include keyword-stuffers, consulting-only, CV-only, and research-only profiles. System correctly penalizes all.
 
 **What we don't have:**
 - No labeled evaluation dataset
@@ -50,13 +50,13 @@ The only role-specific part is the ontology in `config.py`. Everything else is g
 
 ---
 
-## "Why 0.75 evidence + 0.25 semantic?"
+## "Why 0.84 evidence + 0.16 semantic?"
 
 Empirical tuning on the development set. Key observations:
 
 1. Career evidence alone produces good rankings but misses paraphrase variations (e.g., "built a recommendation engine" vs "ranking system").
 2. Semantic similarity alone produces noisy rankings because it can't distinguish "worked on ranking" from "mentioned ranking in a blog post."
-3. The hybrid combines precision (evidence) with recall (semantic). 75/25 weighting keeps evidence dominant while allowing semantic to break ties.
+3. The hybrid combines precision (evidence) with recall (semantic). The 84/16 weighting in `scoring.py` keeps evidence firmly dominant while letting semantic recover paraphrased evidence that keyword matching misses.
 
 ---
 

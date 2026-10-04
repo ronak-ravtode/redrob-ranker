@@ -37,7 +37,7 @@ candidates.jsonl (100K profiles)
           │
           ▼
 ┌─────────────────────┐
-│  Hybrid Scoring      │  0.75 × evidence + 0.25 × semantic
+│  Hybrid Scoring      │  0.84 × evidence + 0.16 × semantic
 │  (scoring.py)        │  Evidence-dominant, skill lists supporting only
 └─────────┬───────────┘
           │
@@ -62,16 +62,16 @@ candidates.jsonl (100K profiles)
 | Supporting signals (skills, profile, corroboration) | ~9% | skills array + profile |
 | Fit signals (experience, location, title, etc.) | ~18% | profile + redrob_signals |
 | Behavioral signals | 8.5% | 23 Redrob platform signals |
-| Semantic similarity | 25% of final | MiniLM-L6-v2 embeddings |
+| Semantic similarity | 16% of final | MiniLM-L6-v2 embeddings |
 | Penalties | up to -0.94 | keyword stuffing, consulting-only, etc. |
 
-Final score: `0.75 × evidence_only + 0.25 × semantic`
+Final score: `0.84 × evidence_only + 0.16 × semantic`
 
 ## Key Design Decisions
 
 1. **Evidence-first**: Career-history descriptions are the dominant signal. Skill lists and summaries are supporting only.
 
-2. **Coarse filter**: Fast regex pre-filter skips candidates without relevant titles OR career evidence. Keeps runtime under 70s on 100K pool.
+2. **Coarse filter**: Fast regex pre-filter skips candidates without relevant titles OR career evidence. Keeps a full 100K run at about 92s.
 
 3. **Anomaly handling**: Hard-exclude high-confidence frauds (impossible durations, future dates). Penalize medium-confidence anomalies (keyword stuffing, consulting-only).
 

@@ -32,7 +32,7 @@ Ranks 100K candidates for a Senior AI Engineer role. Outputs top 100 with candid
 - **Anomaly handling**: High-confidence frauds excluded, medium-confidence penalized.
 - **Reasoning quality**: Each explanation references actual career roles and specific concerns.
 - **Deterministic**: Same input always produces same output. No randomness.
-- **Offline**: No network calls, no GPU, no API during ranking. Runs in ~70s on CPU.
+- **Offline**: No network calls, no GPU, no API during ranking. A full 100K run takes about 92s on CPU with a ~512 MB peak working set.
 
 ### Weaknesses
 
