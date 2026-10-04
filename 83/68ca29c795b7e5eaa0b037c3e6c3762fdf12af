@@ -1,0 +1,39 @@
+README.md
+  s_8738977f4a2d78::t_9bf0b5b2a24d20 114,116-132
+  s_8738977f4a2d78::t_31ab4a0cd1c8a1 70
+  s_8738977f4a2d78::t_e8fb6adf230a5d 89
+  s_8738977f4a2d78::t_c01d811e4d015a 50
+  s_8738977f4a2d78::t_16ccd10603ffef 112
+  s_8738977f4a2d78::t_f47502b9557054 76
+docs/judge_qa.md
+  s_8738977f4a2d78::t_644eca10a0ccbd 59
+  s_8738977f4a2d78::t_797c87127d1d52 17
+  s_8738977f4a2d78::t_89a691e79456d9 53
+docs/architecture.md
+  s_8738977f4a2d78::t_7e34cbba59bd6a 74
+  s_8738977f4a2d78::t_0e04f7b19fbb15 65,68
+  s_8738977f4a2d78::t_4ecedc45f411ff 40
+docs/judge_notes.md
+  s_8738977f4a2d78::t_eaba3363b24146 35
+docs/evaluation.md
+  s_8738977f4a2d78::t_2be7ef56c38e3b 28
+submission_metadata.yaml
+  s_8738977f4a2d78::t_4b5de63a578fc9 76-92
+  s_8738977f4a2d78::t_4b134707cfb7dc 93-109
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "8368ca29c795b7e5eaa0b037c3e6c3762fdf12af",
+  "prompts": {},
+  "sessions": {
+    "s_8738977f4a2d78": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ef814eabcffefY9fIpsKPLg0sE",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    }
+  }
+}
