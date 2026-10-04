@@ -1,0 +1,26 @@
+tests/test_sandbox_app.py
+  s_8738977f4a2d78::t_f7272455257c51 59
+  s_8738977f4a2d78::t_c5564e7b61938a 1-43,45-58,60-64
+  s_8738977f4a2d78::t_9f1d7e90ffcb6f 44
+sandbox_app.py
+  s_8738977f4a2d78::t_5370280a2380a6 134
+  s_8738977f4a2d78::t_fd6490b1307b5d 99
+  s_8738977f4a2d78::t_3b006dd7d8a9d2 45-59,61-64,66
+  s_8738977f4a2d78::t_93d624f01cdd12 73
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "f0ac8019181523c991989798bdba15bd650c1002",
+  "prompts": {},
+  "sessions": {
+    "s_8738977f4a2d78": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ef814eabcffefY9fIpsKPLg0sE",
+        "model": "unknown"
+      },
+      "human_author": "ronak-ravtode <ronakravtode001@gmail.com>"
+    }
+  }
+}
